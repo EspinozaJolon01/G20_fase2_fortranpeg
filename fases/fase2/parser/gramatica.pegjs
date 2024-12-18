@@ -1,13 +1,40 @@
 {{
-    
-    // let identificadores = []
-
-    // import { identificadores } from '../index.js'
-
     import { ids, usos} from '../index.js'
     import { ErrorReglas } from './error.js';
     import { errores } from '../index.js'
 }}
+
+{
+    const crearNodo = (tipoNodo, propiedades) => {
+        const tipos = {
+            'numero': nodos.Numero,
+            'identificador': nodos.Identificador,
+            'rango': nodos.Rango,
+            'producciones': nodos.Producciones,
+            'opciones': nodos.Opciones,
+            'union': nodos.Union,
+            'expresion': nodos.Expresion,
+            'etiqueta': nodos.Etiqueta,
+            'expresiones': nodos.Expresiones,
+            'conteo': nodos.Conteo,
+            'corchetes': nodos.Corchetes,
+            'contenido': nodos.Contenido,
+            'corchete': nodos.Corchete,
+            'caracter': nodos.Caracter,
+            'texto': nodos.Texto,
+            'literales': nodos.Literales,   
+            'finLinea': nodos.FinLinea,
+            'continuacionLinea': nodos.ContinuacionLinea,
+            'stringSimpleComilla': nodos.StringSimpleComilla,
+            'stringDobleComilla': nodos.StringDobleComilla,
+
+        }
+        const nodo = new tipos[tipoNodo](propiedades);
+        nodo.location = location();
+        return nodo;
+    }
+}
+
 
 gramatica = _ producciones+ _ {
 
@@ -23,31 +50,31 @@ gramatica = _ producciones+ _ {
     }
 }
 
-producciones = _ id:identificador _ (literales)? _ "=" _ opciones (_";")? { ids.push(id) }
+producciones = _ id:identificador _ lit:(literales)? _ "=" _ opc:opciones (_";")? { return crearNodo('producciones', { id,lit,opc }) };
 
-opciones = union (_ "/" _ union)*
+opciones = opc: union opcs:(_ "/" _ union)* { return crearNodo('opciones', {opc,...opcs }) }
 
-union = expresion (_ expresion !(_ literales? _ "=") )*
+union = exp: expresion exprs:(_ expresion !(_ literales? _ "=") )* {return crearNodo('union', {exp, ...exprs})}
 
-expresion  = (etiqueta/varios)? _ expresiones _ ([?+*]/conteo)?
+expresion  = tag:(etiqueta/varios)? _ exp:expresiones _ count:([?+*]/conteo)? { return crearNodo('expresion', {tag,exp,count}) }
 
-etiqueta = ("@")? _ id:identificador _ ":" (varios)?
+etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)? {return crearNodo('etiqueta', {tag, id, vars})}
 
-varios = ("!"/"$"/"@"/"&")
+varios = id:("!"/"$"/"@"/"&") { return id }
 
-expresiones  =  id:identificador { usos.push(id) }
-                / literales "i"?
-                / "(" _ opciones _ ")"
-                / corchetes "i"?
-                / "."
-                / "!."
+expresiones  =  id:identificador { usos.push(id); return crearNodo('expresiones', {id}) }
+                / lit:literales opI:"i"?    { return crearNodo('expresiones', {lit,opI}) }
+                / "(" _ opcs:opciones _ ")"   { return crearNodo('expresiones', {opcs}) }
+                / cor:corchetes opI:"i"? { return crearNodo('expresiones', {cor,opI}) }
+                / pt:"." {return crearNodo('expresiones', {pt})}
+                / eof:"!."  {return crearNodo('expresiones', {eof})}
 
 // conteo = "|" parteconteo _ (_ delimitador )? _ "|"
 
-conteo = "|" _ (numero / id:identificador) _ "|"
-        / "|" _ (numero / id:identificador)? _ ".." _ (numero / id2:identificador)? _ "|"
-        / "|" _ (numero / id:identificador)? _ "," _ opciones _ "|"
-        / "|" _ (numero / id:identificador)? _ ".." _ (numero / id2:identificador)? _ "," _ opciones _ "|"
+conteo = val:$("|" _ (numero / id:identificador) _ "|") {return crearNodo('conteo', {val})}
+        / val:$("|" _ (numero / id:identificador)? _ ".." _ (numero / id2:identificador)? _ "|") {return crearNodo('conteo', {val})}
+        / val:$("|" _ (numero / id:identificador)? _ "," _ opciones _ "|") {return crearNodo('conteo', {val})}
+        / val:$("|" _ (numero / id:identificador)? _ ".." _ (numero / id2:identificador)? _ "," _ opciones _ "|") {return crearNodo('conteo', {val})}
 
 // parteconteo = identificador
 //             / [0-9]? _ ".." _ [0-9]?
@@ -58,7 +85,7 @@ conteo = "|" _ (numero / id:identificador) _ "|"
 // Regla principal que analiza corchetes con contenido
 corchetes
     = "[" contenido:(rango / contenido)+ "]" {
-        return `Entrada válida: [${input}]`;
+        return `Entrada válida: [${input}]`; return crearNodo('corchetes', {contenido})
     }
 
 // Regla para validar un rango como [A-Z]
@@ -69,59 +96,60 @@ rango
 
         }
         return `${inicio}-${fin}`;
+
+        return crearNodo('rango', {inicio, fin})
     }
 
 // Regla para caracteres individuales
 caracter
-    = [a-zA-Z0-9_ ] { return text()}
+    = char:[a-zA-Z0-9_ ] {return crearNodo('caracter', {char})}
 
 // Coincide con cualquier contenido que no incluya "]"
 contenido
-    = (corchete / texto)+
+    = cont:(corchete / texto)+  {return crearNodo('contenido', {cont})}
 
 corchete
-    = "[" contenido "]"
+    = "[" cont:contenido "]"    {return crearNodo('corchete', {cont})}
 
 texto
-    = [^\[\]]+
+    = txt:[^\[\]]+  {return crearNodo('texto', {txt})}
 
-literales = '"' stringDobleComilla* '"'
-            / "'" stringSimpleComilla* "'"
+literales = '"' lit:stringDobleComilla* '"'   {return crearNodo('literales', {lit})}
+            / "'" lit:stringSimpleComilla* "'"  {return crearNodo('literales', {lit})}
 
-stringDobleComilla = !('"' / "\\" / finLinea) .
-                    / "\\" escape
-                    / continuacionLinea
+stringDobleComilla = str:!('"' / "\\" / finLinea) .   { return crearNodo('stringDobleComilla', {str}) }
+                    / "\\" escape {return text()}
+                    / continuacionLinea {return text()}
 
-stringSimpleComilla = !("'" / "\\" / finLinea) .
-                    / "\\" escape
-                    / continuacionLinea
+stringSimpleComilla = str:!("'" / "\\" / finLinea) .  { return crearNodo('stringSimpleComilla', {str}) }
+                    / "\\" escape {return text()}
+                    / continuacionLinea {return text()}
 
-continuacionLinea = "\\" secuenciaFinLinea
+continuacionLinea = "\\" secuenciaFinLinea { return text() }
 
-finLinea = [\n\r\u2028\u2029]
+finLinea = [\n\r\u2028\u2029] { return text() }
 
-escape = "'"
-        / '"'
-        / "\\"
-        / "b"
-        / "f"
-        / "n"
-        / "r"
-        / "t"
-        / "v"
-        / "u"
+escape = "'" { return "'"; }
+        / '"' { return '"'; }
+        / "\\" { return "\\"; }
+        / "b" { return text() }
+        / "f" { return text() }
+        / "n" { return text() }
+        / "r" { return text() }
+        / "t" { return text() }
+        / "v" { return text() }
+        / "u" { return text() }
 
-secuenciaFinLinea = "\r\n" / "\n" / "\r" / "\u2028" / "\u2029"
+secuenciaFinLinea =  secuencia: ("\r\n" / "\n" / "\r" / "\u2028" / "\u2029") { return secuencia }
 
 // literales = 
 //     "\"" [^"]* "\""
 //     / "'" [^']* "'"
     
 
-numero = [0-9]+
+numero = num:[0-9]+ {return crearNodo('numero', {num})}
 
-identificador = [_a-z]i[_a-z0-9]i* { return text() }
-
+identificador = id:[_a-z]i[_a-z0-9]i* {return crearNodo('identificador', {id})}
 
 _ = (Comentarios /[ \t\n\r])*
 
