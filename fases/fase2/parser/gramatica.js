@@ -2,6 +2,8 @@
 //
 // https://peggyjs.org/
 
+import nodos from "./nodos.js";
+
 
 
     import { ids, usos} from '../index.js'
@@ -270,18 +272,20 @@ function peg$parse(input, options) {
   var peg$e42 = peg$literalExpectation("/*", false);
   var peg$e43 = peg$literalExpectation("*/", false);
 
-  var peg$f0 = function() {
+  var peg$f0 = function(produ) {
 
     let duplicados = ids.filter((item, index) => ids.indexOf(item) !== index);
     if (duplicados.length > 0) {
         errores.push(new ErrorReglas("Regla duplicada: " + duplicados[0]));
     }
 
+
     // Validar que todos los usos están en ids
     let noEncontrados = usos.filter(item => !ids.includes(item));
     if (noEncontrados.length > 0) {
         errores.push(new ErrorReglas("Regla no encontrada: " + noEncontrados[0]));
     }
+    return {produ}
 };
   var peg$f1 = function(id, lit, opc) { return crearNodo('producciones', { id,lit,opc }) };
   var peg$f2 = function(opc, opcs) { return crearNodo('opciones', { listOpciones: [opc,...opcs ]}) };
@@ -518,7 +522,7 @@ function peg$parse(input, options) {
     if (s2 !== peg$FAILED) {
       s3 = peg$parse_();
       peg$savedPos = s0;
-      s0 = peg$f0();
+      s0 = peg$f0(s2);
     } else {
       peg$currPos = s0;
       s0 = peg$FAILED;

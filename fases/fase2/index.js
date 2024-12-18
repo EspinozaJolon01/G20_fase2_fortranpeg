@@ -1,11 +1,23 @@
 import * as monaco from 'https://cdn.jsdelivr.net/npm/monaco-editor@0.50.0/+esm';
 import { parse } from './parser/gramatica.js';
+import {GeneratorFortran} from './parser/generatorFortran.js';
 import { ErrorReglas } from './parser/error.js';
+import { Producciones } from './parser/nodos.js';
 
 
 export let ids = []
 export let usos = []
 export let errores = []
+
+
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     const btn = document.getElementById('fortranBotton');
+
+//     btn.addEventListener('click', () => {
+//         const tokenizer = new GeneratorFortran();
+//         return tokenizer.generateTokenizer(cst);
+// })
 
 
 // Crear el editor principal
@@ -102,6 +114,40 @@ const analizar = () => {
 editor.onDidChangeModelContent(() => {
     analizar();
 });
+
+// Función para descargar archivo .f90
+const descargarArchivo = (contenido, nombreArchivo) => {
+    const blob = new Blob([contenido], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombreArchivo;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
+
+// Función para manejar el click del botón con id="name"
+const boton = document.getElementById('fortranBotton');
+boton.addEventListener('click', () => {
+    const entrada = editor.getValue();
+    try {
+        const grammar = parse(entrada); // Usar el nuevo parser
+        const tokenizer = new GeneratorFortran();
+        const result = tokenizer.generateTokenizer(grammar.produ);
+
+        // Convertir el resultado en un string formateado
+        const resultadoFortran = `! Archivo generado automáticamente\n${JSON.stringify(result, null, 2)}`;
+
+        // Descargar el resultado como un archivo .f90
+        descargarArchivo(resultadoFortran, 'resultado.f90');
+    } catch (e) {
+        salida.setValue(`Error: ${e.message}`);
+    }
+});
+
+
 
 // CSS personalizado para resaltar el error y agregar un warning
 const style = document.createElement('style');

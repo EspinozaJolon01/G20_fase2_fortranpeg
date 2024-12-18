@@ -33,18 +33,20 @@
 }
 
 
-gramatica = _ producciones+ _ {
+gramatica = _ produ:producciones+ _ {
 
     let duplicados = ids.filter((item, index) => ids.indexOf(item) !== index);
     if (duplicados.length > 0) {
         errores.push(new ErrorReglas("Regla duplicada: " + duplicados[0]));
     }
 
+
     // Validar que todos los usos están en ids
     let noEncontrados = usos.filter(item => !ids.includes(item));
     if (noEncontrados.length > 0) {
         errores.push(new ErrorReglas("Regla no encontrada: " + noEncontrados[0]));
     }
+    return {produ}
 }
 
 producciones = _ id:identificador _ lit:(literales)? _ "=" _ opc:opciones (_";")? { return crearNodo('producciones', { id,lit,opc }) };

@@ -1,5 +1,6 @@
 import { BaseVisitor } from "./visitor.js";
-import mustache from 'mustache';
+import { Producciones } from "./nodos.js";
+
 
 export class GeneratorFortran extends BaseVisitor {
 
@@ -54,24 +55,18 @@ export class GeneratorFortran extends BaseVisitor {
      * @type {BaseVisitor['visitLiterales']}
      */
     visitLiterales(node) {
-        //inicidio ce codigo fortran para el caso de literales  = 'hola' o "hola"
         const template = `
-        if ( "{{val}}" == input(cursor:cursor + {{offset}} )) then
-            allocate( character(len={{length}}) :: lexeme)
-            lexeme = input(cursor:cursor + {{offset}})
-            cursor = cursor + {{length}}
-            return
-        end if
+            if ( "${node.lit}" == input(cursor:cursor + ${node.lit.length - 1}) ) then
+                allocate( character(len=${node.lit.length}) :: lexeme)
+                lexeme = input(cursor:cursor + ${node.lit.length - 1})
+                cursor = cursor + ${node.lit.length}
+                return
+            end if
         `;
-
-        return mustache.render(template, {
-            val: node.lit,
-            offset: node.lit.length - 1,
-            length: node.lit.length,
-        });
-
+    
+        return template;
     }
-
+    
 
     /**
      * @type {BaseVisitor['visitConteo']}
@@ -146,26 +141,27 @@ export class GeneratorFortran extends BaseVisitor {
 
     //Generar el tokennizador
 
-    generateTokenizer(tokens) {
+    generateTokenizer(producciones) {
+        const rules = producciones.map(token => this.visitLiterales(token)).join("\n");
+    
         const template = `
-        module tokenizer
-        implicit none
-
+            module tokenizer
+            implicit none
+    
             contains
             function nextSym(input, cursor) result(lexeme)
                 character(len=*), intent(in) :: input
                 integer, intent(inout) :: cursor
                 character(len=:), allocatable :: lexeme
-                {{#rules}}
-                {{.}}
-                {{/rules}}
+                ${rules}
                 print *, "error lexico en col ", cursor, ', "'//input(cursor:cursor)//'"'
             end function nextSym
-        end module tokenizer
-            `;
-
-        return mustache.render(template, { rules: tokens.map(token => this.visitToken(token)) });
+            end module tokenizer
+        `;
+    
+        return template;
     }
+    
 
 
 
