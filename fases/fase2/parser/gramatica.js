@@ -284,17 +284,17 @@ function peg$parse(input, options) {
     }
 };
   var peg$f1 = function(id, lit, opc) { return crearNodo('producciones', { id,lit,opc }) };
-  var peg$f2 = function(opc, opcs) { return crearNodo('opciones', {opc,...opcs }) };
-  var peg$f3 = function(exp, exprs) {return crearNodo('union', {exp, ...exprs})};
+  var peg$f2 = function(opc, opcs) { return crearNodo('opciones', { listOpciones: [opc,...opcs ]}) };
+  var peg$f3 = function(exp, exprs) {return crearNodo('union', {listUnion: [exp, ...exprs]})};
   var peg$f4 = function(tag, exp, count) { return crearNodo('expresion', {tag,exp,count}) };
   var peg$f5 = function(tag, id, vars) {return crearNodo('etiqueta', {tag, id, vars})};
   var peg$f6 = function(id) { return id };
-  var peg$f7 = function(id) { usos.push(id); return crearNodo('expresiones', {id}) };
-  var peg$f8 = function(lit, opI) { return crearNodo('expresiones', {lit,opI}) };
-  var peg$f9 = function(opcs) { return crearNodo('expresiones', {opcs}) };
-  var peg$f10 = function(cor, opI) { return crearNodo('expresiones', {cor,opI}) };
-  var peg$f11 = function(pt) {return crearNodo('expresiones', {pt})};
-  var peg$f12 = function(eof) {return crearNodo('expresiones', {eof})};
+  var peg$f7 = function(expr) { usos.push(id); return crearNodo('expresiones', {expr}) };
+  var peg$f8 = function(expr, opI) { return crearNodo('expresiones', {expr,opI}) };
+  var peg$f9 = function(expr) { return crearNodo('expresiones', {expr}) };
+  var peg$f10 = function(expr, opI) { return crearNodo('expresiones', {expr,opI}) };
+  var peg$f11 = function(expr) {return crearNodo('expresiones', {expr})};
+  var peg$f12 = function(expr) {return crearNodo('expresiones', {expr})};
   var peg$f13 = function(val) {return crearNodo('conteo', {val})};
   var peg$f14 = function(val) {return crearNodo('conteo', {val})};
   var peg$f15 = function(val) {return crearNodo('conteo', {val})};
@@ -315,12 +315,12 @@ function peg$parse(input, options) {
   var peg$f20 = function(cont) {return crearNodo('contenido', {cont})};
   var peg$f21 = function(cont) {return crearNodo('corchete', {cont})};
   var peg$f22 = function(txt) {return crearNodo('texto', {txt})};
-  var peg$f23 = function(lit) {return crearNodo('literales', {lit})};
-  var peg$f24 = function(lit) {return crearNodo('literales', {lit})};
-  var peg$f25 = function(str) { return crearNodo('stringDobleComilla', {str}) };
+  var peg$f23 = function(lit) {return lit};
+  var peg$f24 = function(lit) {return lit};
+  var peg$f25 = function(str) { return str };
   var peg$f26 = function() {return text()};
   var peg$f27 = function() {return text()};
-  var peg$f28 = function(str) { return crearNodo('stringSimpleComilla', {str}) };
+  var peg$f28 = function(str) { return str};
   var peg$f29 = function() {return text()};
   var peg$f30 = function() {return text()};
   var peg$f31 = function() { return text() };
@@ -2222,12 +2222,8 @@ function peg$parse(input, options) {
             'contenido': nodos.Contenido,
             'corchete': nodos.Corchete,
             'caracter': nodos.Caracter,
-            'texto': nodos.Texto,
-            'literales': nodos.Literales,   
-            'finLinea': nodos.FinLinea,
-            'continuacionLinea': nodos.ContinuacionLinea,
-            'stringSimpleComilla': nodos.StringSimpleComilla,
-            'stringDobleComilla': nodos.StringDobleComilla,
+            'texto': nodos.Texto
+
 
         }
         const nodo = new tipos[tipoNodo](propiedades);

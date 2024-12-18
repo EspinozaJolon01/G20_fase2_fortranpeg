@@ -21,12 +21,8 @@
             'contenido': nodos.Contenido,
             'corchete': nodos.Corchete,
             'caracter': nodos.Caracter,
-            'texto': nodos.Texto,
-            'literales': nodos.Literales,   
-            'finLinea': nodos.FinLinea,
-            'continuacionLinea': nodos.ContinuacionLinea,
-            'stringSimpleComilla': nodos.StringSimpleComilla,
-            'stringDobleComilla': nodos.StringDobleComilla,
+            'texto': nodos.Texto
+
 
         }
         const nodo = new tipos[tipoNodo](propiedades);
@@ -52,9 +48,9 @@ gramatica = _ producciones+ _ {
 
 producciones = _ id:identificador _ lit:(literales)? _ "=" _ opc:opciones (_";")? { return crearNodo('producciones', { id,lit,opc }) };
 
-opciones = opc: union opcs:(_ "/" _ union)* { return crearNodo('opciones', {opc,...opcs }) }
+opciones = opc: union opcs:(_ "/" _ union)* { return crearNodo('opciones', { listOpciones: [opc,...opcs ]}) }
 
-union = exp: expresion exprs:(_ expresion !(_ literales? _ "=") )* {return crearNodo('union', {exp, ...exprs})}
+union = exp: expresion exprs:(_ expresion !(_ literales? _ "=") )* {return crearNodo('union', {listUnion: [exp, ...exprs]})}
 
 expresion  = tag:(etiqueta/varios)? _ exp:expresiones _ count:([?+*]/conteo)? { return crearNodo('expresion', {tag,exp,count}) }
 
@@ -62,12 +58,12 @@ etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)? {return crearNodo(
 
 varios = id:("!"/"$"/"@"/"&") { return id }
 
-expresiones  =  id:identificador { usos.push(id); return crearNodo('expresiones', {id}) }
-                / lit:literales opI:"i"?    { return crearNodo('expresiones', {lit,opI}) }
-                / "(" _ opcs:opciones _ ")"   { return crearNodo('expresiones', {opcs}) }
-                / cor:corchetes opI:"i"? { return crearNodo('expresiones', {cor,opI}) }
-                / pt:"." {return crearNodo('expresiones', {pt})}
-                / eof:"!."  {return crearNodo('expresiones', {eof})}
+expresiones  =  expr:identificador { usos.push(id); return crearNodo('expresiones', {expr}) }
+                / expr:literales opI:"i"?    { return crearNodo('expresiones', {expr,opI}) }
+                / "(" _ expr:opciones _ ")"   { return crearNodo('expresiones', {expr}) }
+                / expr:corchetes opI:"i"? { return crearNodo('expresiones', {expr,opI}) }
+                / expr:"." {return crearNodo('expresiones', {expr})}
+                / expr:"!."  {return crearNodo('expresiones', {expr})}
 
 // conteo = "|" parteconteo _ (_ delimitador )? _ "|"
 
@@ -114,14 +110,14 @@ corchete
 texto
     = txt:[^\[\]]+  {return crearNodo('texto', {txt})}
 
-literales = '"' lit:stringDobleComilla* '"'   {return crearNodo('literales', {lit})}
-            / "'" lit:stringSimpleComilla* "'"  {return crearNodo('literales', {lit})}
+literales = '"' lit:stringDobleComilla* '"'   {return lit}
+            / "'" lit:stringSimpleComilla* "'"  {return lit}
 
-stringDobleComilla = str:!('"' / "\\" / finLinea) .   { return crearNodo('stringDobleComilla', {str}) }
+stringDobleComilla = str:!('"' / "\\" / finLinea) .   { return str }
                     / "\\" escape {return text()}
                     / continuacionLinea {return text()}
 
-stringSimpleComilla = str:!("'" / "\\" / finLinea) .  { return crearNodo('stringSimpleComilla', {str}) }
+stringSimpleComilla = str:!("'" / "\\" / finLinea) .  { return str}
                     / "\\" escape {return text()}
                     / continuacionLinea {return text()}
 
