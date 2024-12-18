@@ -13,10 +13,10 @@
     
 
 /**
- * @typedef {import('./Visitor').BaseVisitor} BaseVisitor
+ * @typedef {import('./visitor').BaseVisitor} BaseVisitor
  */
 
-export class expression   {
+export class Expression   {
 
     /**
     * @param {Object} options
@@ -37,11 +37,11 @@ export class expression   {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitexpression (this);
+        return visitor.visitExpression (this);
     }
 }
     
-export class producciones extends expression {
+export class Producciones extends Expression {
 
     /**
     * @param {Object} options
@@ -78,22 +78,22 @@ export class producciones extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitproducciones(this);
+        return visitor.visitProducciones(this);
     }
 }
     
-export class opciones extends expression {
+export class Opciones extends Expression {
 
     /**
     * @param {Object} options
-    * @param {expression} options.listOpciones Lista de opciones de la produccion
+    * @param {Expression} options.listOpciones Lista de opciones de la produccion
     */
     constructor({ listOpciones }) {
         super();
         
         /**
          * Lista de opciones de la produccion
-         * @type {expression}
+         * @type {Expression}
         */
         this.listOpciones = listOpciones;
 
@@ -103,22 +103,22 @@ export class opciones extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitopciones(this);
+        return visitor.visitOpciones(this);
     }
 }
     
-export class union extends expression {
+export class Union extends Expression {
 
     /**
     * @param {Object} options
-    * @param {expression} options.listUnion Lista de expresiones de la union
+    * @param {Expression} options.listUnion Lista de expresiones de la union
     */
     constructor({ listUnion }) {
         super();
         
         /**
          * Lista de expresiones de la union
-         * @type {expression}
+         * @type {Expression}
         */
         this.listUnion = listUnion;
 
@@ -128,38 +128,38 @@ export class union extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitunion(this);
+        return visitor.visitUnion(this);
     }
 }
     
-export class expresion extends expression {
+export class Expresion extends Expression {
 
     /**
     * @param {Object} options
-    * @param {expression|null} options.tag Etiqueta de la expresion
- * @param {expression} options.exp Expresiones de la union
- * @param {expression} options.count Conteo de la expresion
+    * @param {Expression|null} options.tag Etiqueta de la expresion
+ * @param {Expression} options.exp Expresiones de la union
+ * @param {Expression} options.count Conteo de la expresion
     */
     constructor({ tag, exp, count }) {
         super();
         
         /**
          * Etiqueta de la expresion
-         * @type {expression|null}
+         * @type {Expression|null}
         */
         this.tag = tag;
 
 
         /**
          * Expresiones de la union
-         * @type {expression}
+         * @type {Expression}
         */
         this.exp = exp;
 
 
         /**
          * Conteo de la expresion
-         * @type {expression}
+         * @type {Expression}
         */
         this.count = count;
 
@@ -169,17 +169,17 @@ export class expresion extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitexpresion(this);
+        return visitor.visitExpresion(this);
     }
 }
     
-export class etiqueta extends expression {
+export class Etiqueta extends Expression {
 
     /**
     * @param {Object} options
     * @param {string|null} options.tag Etiqueta de la expresion
  * @param {string} options.id Identificador de la etiqueta
- * @param {expression|null} options.vars Varios de la etiqueta
+ * @param {Expression|null} options.vars Varios de la etiqueta
     */
     constructor({ tag, id, vars }) {
         super();
@@ -200,7 +200,7 @@ export class etiqueta extends expression {
 
         /**
          * Varios de la etiqueta
-         * @type {expression|null}
+         * @type {Expression|null}
         */
         this.vars = vars;
 
@@ -210,15 +210,15 @@ export class etiqueta extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitetiqueta(this);
+        return visitor.visitEtiqueta(this);
     }
 }
     
-export class expresiones extends expression {
+export class Expresiones extends Expression {
 
     /**
     * @param {Object} options
-    * @param {expression} options.expr Expresion de la union
+    * @param {Expression} options.expr Expresion de la union
  * @param {string|null} options.opI Identificador de la expresion
     */
     constructor({ expr, opI }) {
@@ -226,7 +226,7 @@ export class expresiones extends expression {
         
         /**
          * Expresion de la union
-         * @type {expression}
+         * @type {Expression}
         */
         this.expr = expr;
 
@@ -243,22 +243,22 @@ export class expresiones extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitexpresiones(this);
+        return visitor.visitExpresiones(this);
     }
 }
     
-export class conteo extends expression {
+export class Conteo extends Expression {
 
     /**
     * @param {Object} options
-    * @param {expression} options.val Valor de la expresion
+    * @param {Expression} options.val Valor de la expresion
     */
     constructor({ val }) {
         super();
         
         /**
          * Valor de la expresion
-         * @type {expression}
+         * @type {Expression}
         */
         this.val = val;
 
@@ -268,22 +268,22 @@ export class conteo extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitconteo(this);
+        return visitor.visitConteo(this);
     }
 }
     
-export class corchetes extends expression {
+export class Corchetes extends Expression {
 
     /**
     * @param {Object} options
-    * @param {expression} options.contenido Contenido de la expresion
+    * @param {Expression} options.contenido Contenido de la expresion
     */
     constructor({ contenido }) {
         super();
         
         /**
          * Contenido de la expresion
-         * @type {expression}
+         * @type {Expression}
         */
         this.contenido = contenido;
 
@@ -293,30 +293,30 @@ export class corchetes extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitcorchetes(this);
+        return visitor.visitCorchetes(this);
     }
 }
     
-export class rango extends expression {
+export class Rango extends Expression {
 
     /**
     * @param {Object} options
-    * @param {expression} options.inicio Inicio del rango
- * @param {expression} options.fin Fin del rango
+    * @param {Expression} options.inicio Inicio del rango
+ * @param {Expression} options.fin Fin del rango
     */
     constructor({ inicio, fin }) {
         super();
         
         /**
          * Inicio del rango
-         * @type {expression}
+         * @type {Expression}
         */
         this.inicio = inicio;
 
 
         /**
          * Fin del rango
-         * @type {expression}
+         * @type {Expression}
         */
         this.fin = fin;
 
@@ -326,11 +326,11 @@ export class rango extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitrango(this);
+        return visitor.visitRango(this);
     }
 }
     
-export class caracter extends expression {
+export class Caracter extends Expression {
 
     /**
     * @param {Object} options
@@ -351,22 +351,22 @@ export class caracter extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitcaracter(this);
+        return visitor.visitCaracter(this);
     }
 }
     
-export class contenido extends expression {
+export class Contenido extends Expression {
 
     /**
     * @param {Object} options
-    * @param {expression} options.cont Contenido de la expresion
+    * @param {Expression} options.cont Contenido de la expresion
     */
     constructor({ cont }) {
         super();
         
         /**
          * Contenido de la expresion
-         * @type {expression}
+         * @type {Expression}
         */
         this.cont = cont;
 
@@ -376,22 +376,22 @@ export class contenido extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitcontenido(this);
+        return visitor.visitContenido(this);
     }
 }
     
-export class corchete extends expression {
+export class Corchete extends Expression {
 
     /**
     * @param {Object} options
-    * @param {expression} options.cont Contenido de la expresion
+    * @param {Expression} options.cont Contenido de la expresion
     */
     constructor({ cont }) {
         super();
         
         /**
          * Contenido de la expresion
-         * @type {expression}
+         * @type {Expression}
         */
         this.cont = cont;
 
@@ -401,11 +401,11 @@ export class corchete extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitcorchete(this);
+        return visitor.visitCorchete(this);
     }
 }
     
-export class texto extends expression {
+export class Texto extends Expression {
 
     /**
     * @param {Object} options
@@ -426,11 +426,11 @@ export class texto extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visittexto(this);
+        return visitor.visitTexto(this);
     }
 }
     
-export class numero extends expression {
+export class Numero extends Expression {
 
     /**
     * @param {Object} options
@@ -451,11 +451,11 @@ export class numero extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitnumero(this);
+        return visitor.visitNumero(this);
     }
 }
     
-export class identificador extends expression {
+export class Identificador extends Expression {
 
     /**
     * @param {Object} options
@@ -476,8 +476,8 @@ export class identificador extends expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitidentificador(this);
+        return visitor.visitIdentificador(this);
     }
 }
     
-export default { expression , producciones, opciones, union, expresion, etiqueta, expresiones, conteo, corchetes, rango, caracter, contenido, corchete, texto, numero, identificador }
+export default { Expression , Producciones, Opciones, Union, Expresion, Etiqueta, Expresiones, Conteo, Corchetes, Rango, Caracter, Contenido, Corchete, Texto, Numero, Identificador }

@@ -25,7 +25,7 @@ const configuracionNodos = [
 
 
     {
-        name: 'expression ',
+        name: 'Expression ',
         base: true,
         props: [
             {
@@ -40,8 +40,8 @@ const configuracionNodos = [
     //configuracion de los nodos de la gramatica
     // producciones = _ id:identificador _ lit:(literales)? _ "=" _ opc:opciones (_";")? { return crearNodo('producciones', { id,lit,opc }) };
     {
-        name: 'producciones',
-        extends: 'expression',
+        name: 'Producciones',
+        extends: 'Expression',
         props: [
             {
                 name: 'id',
@@ -64,12 +64,12 @@ const configuracionNodos = [
     //opciones = opc: union opcs:(_ "/" _ union)* { return crearNodo('opciones', { listOpciones: [opc,...opcs ]}) }
 
     {
-        name: 'opciones',
-        extends: 'expression',
+        name: 'Opciones',
+        extends: 'Expression',
         props: [
             {
                 name: 'listOpciones',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Lista de opciones de la produccion'
             }
         ]
@@ -78,12 +78,12 @@ const configuracionNodos = [
     //union = exp: expresion exprs:(_ expresion !(_ literales? _ "=") )* {return crearNodo('union', {listUnion: [exp, ...exprs]})}
 
     {
-        name: 'union',
-        extends: 'expression',
+        name: 'Union',
+        extends: 'Expression',
         props: [
             {
                 name: 'listUnion',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Lista de expresiones de la union'
             }
         ]
@@ -93,22 +93,22 @@ const configuracionNodos = [
     //expresion  = tag:(etiqueta/varios)? _ exp:expresiones _ count:([?+*]/conteo)? { return crearNodo('expresion', {tag,exp,count}) }
 
     {
-        name: 'expresion',
-        extends: 'expression',
+        name: 'Expresion',
+        extends: 'Expression',
         props: [
             {
                 name: 'tag',
-                type: 'expression|null',
+                type: 'Expression|null',
                 description: 'Etiqueta de la expresion'
             },
             {
                 name: 'exp',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Expresiones de la union'
             },
             {
                 name: 'count',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Conteo de la expresion'
             }
         ]
@@ -118,8 +118,8 @@ const configuracionNodos = [
     //etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)? {return crearNodo('etiqueta', {tag, id, vars})}
 
     {
-        name: 'etiqueta',
-        extends: 'expression',
+        name: 'Etiqueta',
+        extends: 'Expression',
         props: [
             {
                 name: 'tag',
@@ -133,7 +133,7 @@ const configuracionNodos = [
             },
             {
                 name: 'vars',
-                type: 'expression|null',
+                type: 'Expression|null',
                 description: 'Varios de la etiqueta'
             }
         ]
@@ -146,12 +146,12 @@ const configuracionNodos = [
     // / expr:"." {return crearNodo('expresiones', {expr})}
     // / expr:"!."  {return crearNodo('expresiones', {expr})}
     {
-        name: 'expresiones',
-        extends: 'expression',
+        name: 'Expresiones',
+        extends: 'Expression',
         props: [
             {
                 name: 'expr',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Expresion de la union'
             },
             {
@@ -166,12 +166,12 @@ const configuracionNodos = [
     //conteo = val:$("|" _ (numero / id:identificador) _ "|") {return crearNodo('conteo', {val})}
 
     {
-        name: 'conteo',
-        extends: 'expression',
+        name: 'Conteo',
+        extends: 'Expression',
         props: [
             {
                 name: 'val',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Valor de la expresion'
             }
         ]
@@ -181,12 +181,12 @@ const configuracionNodos = [
     //return crearNodo('corchetes', {contenido})  
 
     {
-        name: 'corchetes',
-        extends: 'expression',
+        name: 'Corchetes',
+        extends: 'Expression',
         props: [
             {
                 name: 'contenido',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Contenido de la expresion'
             }
         ]
@@ -196,17 +196,17 @@ const configuracionNodos = [
     //crearNodo('rango', {inicio, fin})  
 
     {
-        name: 'rango',
-        extends: 'expression',
+        name: 'Rango',
+        extends: 'Expression',
         props: [
             {
                 name: 'inicio',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Inicio del rango'
             },
             {
                 name: 'fin',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Fin del rango'
             }
         ]
@@ -214,8 +214,8 @@ const configuracionNodos = [
 
     //caracter = char:[a-zA-Z0-9_ ] {return crearNodo('caracter', {char})}
     {
-        name: 'caracter',
-        extends: 'expression',
+        name: 'Caracter',
+        extends: 'Expression',
         props: [
             {
                 name: 'char',
@@ -228,12 +228,12 @@ const configuracionNodos = [
     //contenido = cont:(corchete / texto)+  {return crearNodo('contenido', {cont})}
 
     {
-        name: 'contenido',
-        extends: 'expression',
+        name: 'Contenido',
+        extends: 'Expression',
         props: [
             {
                 name: 'cont',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Contenido de la expresion'
             }
         ]
@@ -242,12 +242,12 @@ const configuracionNodos = [
     //corchete = "[" cont:contenido "]"    {return crearNodo('corchete', {cont})}
 
     {
-        name: 'corchete',
-        extends: 'expression',
+        name: 'Corchete',
+        extends: 'Expression',
         props: [
             {
                 name: 'cont',
-                type: 'expression',
+                type: 'Expression',
                 description: 'Contenido de la expresion'
             }
         ]
@@ -257,8 +257,8 @@ const configuracionNodos = [
 
     {
 
-        name: 'texto',
-        extends: 'expression',
+        name: 'Texto',
+        extends: 'Expression',
         props: [
             {
                 name: 'txt',
@@ -272,8 +272,8 @@ const configuracionNodos = [
     //numero = num:[0-9]+ {return crearNodo('numero', {num})}
 
     {
-        name: 'numero',
-        extends: 'expression',
+        name: 'Numero',
+        extends: 'Expression',
         props: [
             {
                 name: 'num',
@@ -286,8 +286,8 @@ const configuracionNodos = [
     //identificador = id:[_a-z]i[_a-z0-9]i* {return crearNodo('identificador', {id})}
 
     {
-        name: 'identificador',
-        extends: 'expression',
+        name: 'Identificador',
+        extends: 'Expression',
         props: [
             {
                 name: 'id',
@@ -321,7 +321,7 @@ types.forEach(type => {
 // Tipos del visitor
 code += `
 /**
- * @typedef {import('./Visitor').BaseVisitor} BaseVisitor
+ * @typedef {import('./visitor').BaseVisitor} BaseVisitor
  */
 `
 
@@ -367,8 +367,8 @@ fs.writeFileSync('./nodos.js', code)
 console.log('Archivo de clases de nodo generado correctamente')
 
 
-// Visitor
-// @typedef {import('./nodos').expression } expression 
+// visitor
+// @typedef {import('./nodos').Expression } Expression 
 code = `
 /**
 ${configuracionNodos.map(nodo => `
@@ -398,5 +398,5 @@ export class BaseVisitor {
 }
 `
 
-fs.writeFileSync('./Visitor.js', code)
+fs.writeFileSync('./visitor.js', code)
 console.log('Archivo de visitor generado correctamente')
