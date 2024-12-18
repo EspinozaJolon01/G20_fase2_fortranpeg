@@ -315,8 +315,8 @@ function peg$parse(input, options) {
   var peg$f20 = function(cont) {return crearNodo('contenido', {cont})};
   var peg$f21 = function(cont) {return crearNodo('corchete', {cont})};
   var peg$f22 = function(txt) {return crearNodo('texto', {txt})};
-  var peg$f23 = function(lit) {return lit};
-  var peg$f24 = function(lit) {return lit};
+  var peg$f23 = function(lit) {return crearNodo('literales', {lit})};
+  var peg$f24 = function(lit) {return crearNodo('literales', {lit})};
   var peg$f25 = function(str) { return str };
   var peg$f26 = function() {return text()};
   var peg$f27 = function() {return text()};
@@ -2222,7 +2222,8 @@ function peg$parse(input, options) {
             'contenido': nodos.Contenido,
             'corchete': nodos.Corchete,
             'caracter': nodos.Caracter,
-            'texto': nodos.Texto
+            'texto': nodos.Texto,
+            'literales': nodos.Literales
 
 
         }

@@ -178,7 +178,7 @@ export class Etiqueta extends Expression {
     /**
     * @param {Object} options
     * @param {string|null} options.tag Etiqueta de la expresion
- * @param {string} options.id Identificador de la etiqueta
+ * @param {Expression} options.id Identificador de la etiqueta
  * @param {Expression|null} options.vars Varios de la etiqueta
     */
     constructor({ tag, id, vars }) {
@@ -193,7 +193,7 @@ export class Etiqueta extends Expression {
 
         /**
          * Identificador de la etiqueta
-         * @type {string}
+         * @type {Expression}
         */
         this.id = id;
 
@@ -480,4 +480,29 @@ export class Identificador extends Expression {
     }
 }
     
-export default { Expression , Producciones, Opciones, Union, Expresion, Etiqueta, Expresiones, Conteo, Corchetes, Rango, Caracter, Contenido, Corchete, Texto, Numero, Identificador }
+export class Literales extends Expression {
+
+    /**
+    * @param {Object} options
+    * @param {string} options.lit Literales de la expresion
+    */
+    constructor({ lit }) {
+        super();
+        
+        /**
+         * Literales de la expresion
+         * @type {string}
+        */
+        this.lit = lit;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitLiterales(this);
+    }
+}
+    
+export default { Expression , Producciones, Opciones, Union, Expresion, Etiqueta, Expresiones, Conteo, Corchetes, Rango, Caracter, Contenido, Corchete, Texto, Numero, Identificador, Literales }

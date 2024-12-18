@@ -128,7 +128,7 @@ const configuracionNodos = [
             },
             {
                 name: 'id',
-                type: 'string',
+                type: 'Expression',
                 description: 'Identificador de la etiqueta'
             },
             {
@@ -295,6 +295,22 @@ const configuracionNodos = [
                 description: 'Identificador de la expresion'
             }
         ]
+    },
+
+
+    // literales = '"' lit:stringDobleComilla* '"'   {return crearNodo('literales', {lit})}
+
+    { 
+        name: 'Literales',
+        extends: 'Expression',
+        props: [
+            {
+                name: 'lit',
+                type: 'string',
+                description: 'Literales de la expresion'
+            }
+        ]
+
     }
 
 ]

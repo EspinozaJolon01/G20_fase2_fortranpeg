@@ -21,7 +21,8 @@
             'contenido': nodos.Contenido,
             'corchete': nodos.Corchete,
             'caracter': nodos.Caracter,
-            'texto': nodos.Texto
+            'texto': nodos.Texto,
+            'literales': nodos.Literales
 
 
         }
@@ -110,8 +111,8 @@ corchete
 texto
     = txt:[^\[\]]+  {return crearNodo('texto', {txt})}
 
-literales = '"' lit:stringDobleComilla* '"'   {return lit}
-            / "'" lit:stringSimpleComilla* "'"  {return lit}
+literales = '"' lit:stringDobleComilla* '"'   {return crearNodo('literales', {lit})}
+            / "'" lit:stringSimpleComilla* "'"  {return crearNodo('literales', {lit})}
 
 stringDobleComilla = str:!('"' / "\\" / finLinea) .   { return str }
                     / "\\" escape {return text()}

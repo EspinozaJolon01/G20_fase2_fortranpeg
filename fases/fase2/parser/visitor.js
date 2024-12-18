@@ -48,6 +48,9 @@
 
  * @typedef {import('./nodos').Identificador} Identificador
 
+
+ * @typedef {import('./nodos').Literales} Literales
+
  */
 
 
@@ -199,6 +202,15 @@ export class BaseVisitor {
      */
     visitIdentificador(node) {
         throw new Error('Metodo visitIdentificador no implementado');
+    }
+    
+
+    /**
+     * @param {Literales} node
+     * @returns {any}
+     */
+    visitLiterales(node) {
+        throw new Error('Metodo visitLiterales no implementado');
     }
     
 }
