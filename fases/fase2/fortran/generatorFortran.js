@@ -40,19 +40,44 @@ export class GeneratorFortran extends BaseVisitor {
      * @type {BaseVisitor['visitStrComilla']}
      */
     visitStrComilla(node) {
+        if (node.opI === 'i') {
             return `
-        if ("${node.expr}" == input(cursor:cursor + ${
-                node.expr.length - 1
-            })) then !Foo
-            allocate( character(len=${node.expr.length}) :: lexeme)
+        block
+            character(len=${node.expr.length}) :: temp_str
+            logical :: is_match
+            integer :: i, char_code
+            
+            is_match = .false.
+            temp_str = input(cursor:cursor + ${node.expr.length - 1})
+            
+            do i = 1, ${node.expr.length}
+                char_code = iachar(temp_str(i:i))
+                if (char_code >= iachar('a') .and. char_code <= iachar('z')) then
+                    temp_str(i:i) = achar(char_code - 32)
+                end if
+            end do
+            
+            if ("${node.expr.toUpperCase()}" == temp_str) then
+                is_match = .true.
+            end if
+            
+            if (is_match) then
+                allocate(character(len=${node.expr.length}) :: lexeme)
+                lexeme = input(cursor:cursor + ${node.expr.length - 1})
+                cursor = cursor + ${node.expr.length}
+                return
+            end if
+        end block`;
+        } else {
+            return `
+        if ("${node.expr}" == input(cursor:cursor + ${node.expr.length - 1})) then
+            allocate(character(len=${node.expr.length}) :: lexeme)
             lexeme = input(cursor:cursor + ${node.expr.length - 1})
             cursor = cursor + ${node.expr.length}
             return
-        end if
-        `;
+        end if`;
         }
-    
-
+        }
     /**
      * @type {BaseVisitor['visitConteo']}
      */
@@ -88,13 +113,13 @@ export class GeneratorFortran extends BaseVisitor {
         return `
             module tokenizer
             implicit none
-
+            
             contains
             function nextSym(input, cursor) result(lexeme)
                 character(len=*), intent(in) :: input
                 integer, intent(inout) :: cursor
                 character(len=:), allocatable :: lexeme
-
+            
                 if (cursor > len(input)) then
                     allocate( character(len=3) :: lexeme )
                     lexeme = "EOF"
@@ -104,10 +129,10 @@ export class GeneratorFortran extends BaseVisitor {
                 ${producciones.map((produccion) => produccion.accept(this)).join('\n')}
             
                 print *, "error lexico en col ", cursor, ', "'//input(cursor:cursor)//'"'
-            lexeme = "ERROR"
+                lexeme = "ERROR"
             end function nextSym
             end module tokenizer 
-                    `;
+                `;
     }
     
 
