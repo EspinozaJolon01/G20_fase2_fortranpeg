@@ -34,7 +34,7 @@ export class GeneratorFortran extends BaseVisitor {
         
         if (node.count =="+"){
             return `
-            if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") THEN
+            if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
                 do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}")
                 lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
                 cursor = cursor + ${node.exp.expr.length}
@@ -42,6 +42,15 @@ export class GeneratorFortran extends BaseVisitor {
                 return
             end if
             `
+        }else if (node.count === "*"){
+            return `
+            lexeme = ""
+                do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}")
+                    lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
+                    cursor = cursor + ${node.exp.expr.length}
+                end do
+                return
+                `
         }
         return node.exp.accept(this);
     }
