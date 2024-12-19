@@ -90,22 +90,30 @@ export class GeneratorFortran extends BaseVisitor {
             implicit none
             
             contains
-            function nextSym(input, cursor) result(lexeme)
-                character(len=*), intent(in) :: input
-                integer, intent(inout) :: cursor
-                character(len=:), allocatable :: lexeme
-            
-                if (cursor > len(input)) then
-                    allocate( character(len=3) :: lexeme )
-                    lexeme = "EOF"
-                    return
-                end if
+            FUNCTION nextSym(input, cursor) RESULT(lexeme)
+            CHARACTER(LEN=*), INTENT(IN) :: input
+            INTEGER, INTENT(INOUT) :: cursor
+            CHARACTER(LEN=:), ALLOCATABLE :: lexeme
+
+            ! Verificar que el cursor no exceda el tamaño de la cadena
+            IF (cursor < 1 .OR. cursor > LEN_TRIM(input)) THEN
+                PRINT *, "error: cursor fuera de límites en col ", cursor
+                lexeme = ""
+                RETURN
+            END IF
+
+            ! Comprobar si hay suficientes caracteres para leer
+            IF (cursor + 2 > LEN_TRIM(input)) THEN
+                PRINT *, "error: no hay suficientes caracteres para leer en col ", cursor
+                lexeme = ""
+                RETURN
+            END IF
             
                 ${producciones.map((produccion) => produccion.accept(this)).join('\n')}
             
-                print *, "error lexico en col ", cursor, ', "'//input(cursor:cursor)//'"'
-                lexeme = "ERROR"
-            end function nextSym
+                PRINT *, "error lexico en col ", cursor, ', "'//input(cursor:cursor)//'"'
+                lexeme = ""
+            END FUNCTION nextSym
             end module tokenizer 
                 `;
     }
