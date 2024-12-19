@@ -46,7 +46,7 @@ export class GeneratorFortran extends BaseVisitor {
      * @type {BaseVisitor['visitExpresiones']}
      */
     visitExpresiones(node) {
-        return node.expr.accept(this);
+        return node.exp.accept(this);
     }
 
 
@@ -55,17 +55,22 @@ export class GeneratorFortran extends BaseVisitor {
      * @type {BaseVisitor['visitLiterales']}
      */
     visitLiterales(node) {
-        const template = `
-            if ( "${node.lit}" == input(cursor:cursor + ${node.lit.length - 1}) ) then
-                allocate( character(len=${node.lit.length}) :: lexeme)
-                lexeme = input(cursor:cursor + ${node.lit.length - 1})
-                cursor = cursor + ${node.lit.length}
-                return
-            end if
+        if(node.lit==undefined){
+            const template = `
+            if (cursor + ${node.lit.length-1} <= len(input)) then
+                if (input(cursor:cursor+${node.lit.length-1}) == "${node.lit}") then
+                    token = "cadena | ${node.lit}"
+                    has_token = .true.
+                    cursor = cursor + ${node.lit.length}
+                    return
+                end if
+            end if 
         `;
     
         return template;
     }
+        }
+    
     
 
     /**

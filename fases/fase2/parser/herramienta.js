@@ -48,15 +48,16 @@ const configuracionNodos = [
                 type: 'string',
                 description: 'Identificador de la produccion'
             },
-            {
-                name: 'lit',
-                type: 'string|null',
-                description: 'Lista de literales de la produccion'
-            },
+            
             {
                 name: 'opc',
                 type: 'any',
                 description: 'Opciones de la produccion'
+            },
+            {
+                name: 'lit',
+                type: 'string|null',
+                description: 'Lista de literales de la produccion'
             }
         ]
     },
@@ -150,14 +151,9 @@ const configuracionNodos = [
         extends: 'Expression',
         props: [
             {
-                name: 'expr',
+                name: 'exp',
                 type: 'Expression',
                 description: 'Expresion de la union'
-            },
-            {
-                name: 'opI',
-                type: 'string|null',
-                description: 'Identificador de la expresion'
             }
         ]
     },
@@ -308,6 +304,11 @@ const configuracionNodos = [
                 name: 'lit',
                 type: 'string',
                 description: 'Literales de la expresion'
+            },
+            {
+                name: 'opI',
+                type: 'string',
+                description: 'Opcion de la expresion'
             }
         ]
 

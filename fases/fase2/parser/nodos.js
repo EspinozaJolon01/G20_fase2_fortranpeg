@@ -46,10 +46,10 @@ export class Producciones extends Expression {
     /**
     * @param {Object} options
     * @param {string} options.id Identificador de la produccion
- * @param {string|null} options.lit Lista de literales de la produccion
  * @param {any} options.opc Opciones de la produccion
+ * @param {string|null} options.lit Lista de literales de la produccion
     */
-    constructor({ id, lit, opc }) {
+    constructor({ id, opc, lit }) {
         super();
         
         /**
@@ -60,17 +60,17 @@ export class Producciones extends Expression {
 
 
         /**
-         * Lista de literales de la produccion
-         * @type {string|null}
-        */
-        this.lit = lit;
-
-
-        /**
          * Opciones de la produccion
          * @type {any}
         */
         this.opc = opc;
+
+
+        /**
+         * Lista de literales de la produccion
+         * @type {string|null}
+        */
+        this.lit = lit;
 
     }
 
@@ -218,24 +218,16 @@ export class Expresiones extends Expression {
 
     /**
     * @param {Object} options
-    * @param {Expression} options.expr Expresion de la union
- * @param {string|null} options.opI Identificador de la expresion
+    * @param {Expression} options.exp Expresion de la union
     */
-    constructor({ expr, opI }) {
+    constructor({ exp }) {
         super();
         
         /**
          * Expresion de la union
          * @type {Expression}
         */
-        this.expr = expr;
-
-
-        /**
-         * Identificador de la expresion
-         * @type {string|null}
-        */
-        this.opI = opI;
+        this.exp = exp;
 
     }
 
@@ -485,8 +477,9 @@ export class Literales extends Expression {
     /**
     * @param {Object} options
     * @param {string} options.lit Literales de la expresion
+ * @param {string} options.opI Opcion de la expresion
     */
-    constructor({ lit }) {
+    constructor({ lit, opI }) {
         super();
         
         /**
@@ -494,6 +487,13 @@ export class Literales extends Expression {
          * @type {string}
         */
         this.lit = lit;
+
+
+        /**
+         * Opcion de la expresion
+         * @type {string}
+        */
+        this.opI = opI;
 
     }
 

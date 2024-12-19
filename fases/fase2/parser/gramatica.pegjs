@@ -2,6 +2,7 @@
     import { ids, usos} from '../index.js'
     import { ErrorReglas } from './error.js';
     import { errores } from '../index.js'
+    
 }}
 
 {
@@ -49,7 +50,7 @@ gramatica = _ produ:producciones+ _ {
     return {produ}
 }
 
-producciones = _ id:identificador _ lit:(literales)? _ "=" _ opc:opciones (_";")? { return crearNodo('producciones', { id,lit,opc }) };
+producciones = _ id:identificador _ lit:(literales)? _ "=" _ opc:opciones (_";")? { debugger; return crearNodo('producciones', { id,opc,lit }) };
 
 opciones = opc: union opcs:(_ "/" _ union)* { return crearNodo('opciones', { listOpciones: [opc,...opcs ]}) }
 
@@ -62,7 +63,7 @@ etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)? {return crearNodo(
 varios = id:("!"/"$"/"@"/"&") { return id }
 
 expresiones  =  expr:identificador { usos.push(id); return crearNodo('expresiones', {expr}) }
-                / expr:literales opI:"i"?    { return crearNodo('expresiones', {expr,opI}) }
+                / expr:$literales opI:"i"?    { return crearNodo('expresiones', {exp: crearNodo('literales',{expr,opI})}) }
                 / "(" _ expr:opciones _ ")"   { return crearNodo('expresiones', {expr}) }
                 / expr:corchetes opI:"i"? { return crearNodo('expresiones', {expr,opI}) }
                 / expr:"." {return crearNodo('expresiones', {expr})}
@@ -113,31 +114,31 @@ corchete
 texto
     = txt:[^\[\]]+  {return crearNodo('texto', {txt})}
 
-literales = '"' lit:stringDobleComilla* '"'   {return crearNodo('literales', {lit})}
-            / "'" lit:stringSimpleComilla* "'"  {return crearNodo('literales', {lit})}
+literales = '"' lit:stringDobleComilla* '"'   {console.log(lit); return lit.join(''); }
+            / "'" lit:stringSimpleComilla* "'"  {return lit.join('') }
 
-stringDobleComilla = str:!('"' / "\\" / finLinea) .   { return str }
-                    / "\\" escape {return text()}
-                    / continuacionLinea {return text()}
+stringDobleComilla = !('"' / "\\" / finLinea) .   { return text() }
+                    / "\\" salida:escape {return salida}
+                    / continuacionLinea 
 
-stringSimpleComilla = str:!("'" / "\\" / finLinea) .  { return str}
-                    / "\\" escape {return text()}
-                    / continuacionLinea {return text()}
+stringSimpleComilla = !("'" / "\\" / finLinea) .  { return text()}
+                    / "\\" salida:escape {return salida}
+                    / continuacionLinea 
 
-continuacionLinea = "\\" secuenciaFinLinea { return text() }
+continuacionLinea = "\\" secuenciaFinLinea 
 
-finLinea = [\n\r\u2028\u2029] { return text() }
+finLinea = [\n\r\u2028\u2029] 
 
-escape = "'" { return "'"; }
-        / '"' { return '"'; }
-        / "\\" { return "\\"; }
-        / "b" { return text() }
-        / "f" { return text() }
-        / "n" { return text() }
-        / "r" { return text() }
-        / "t" { return text() }
-        / "v" { return text() }
-        / "u" { return text() }
+escape = "'" 
+        / '"' 
+        / "\\" 
+        / "b" 
+        / "f" 
+        / "n" 
+        / "r" 
+        / "t" 
+        / "v" 
+        / "u" 
 
 secuenciaFinLinea =  secuencia: ("\r\n" / "\n" / "\r" / "\u2028" / "\u2029") { return secuencia }
 
