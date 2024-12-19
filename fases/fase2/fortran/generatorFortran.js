@@ -31,6 +31,18 @@ export class GeneratorFortran extends BaseVisitor {
      * @type {BaseVisitor['visitExpresion']}
      */
     visitExpresion(node) {
+        
+        if (node.count =="+"){
+            return `
+            IF (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") THEN
+                do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}")
+                lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
+                cursor = cursor + ${node.exp.expr.length}
+                end do
+                return
+            END IF
+            `
+        }
         return node.exp.accept(this);
     }
 
