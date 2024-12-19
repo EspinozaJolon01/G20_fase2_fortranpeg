@@ -48,16 +48,15 @@ const configuracionNodos = [
                 type: 'string',
                 description: 'Identificador de la produccion'
             },
-            
-            {
-                name: 'opc',
-                type: 'any',
-                description: 'Opciones de la produccion'
-            },
             {
                 name: 'lit',
                 type: 'string|null',
                 description: 'Lista de literales de la produccion'
+            },
+            {
+                name: 'opc',
+                type: 'any',
+                description: 'Opciones de la produccion'
             }
         ]
     },
@@ -115,45 +114,19 @@ const configuracionNodos = [
         ]
     },
 
-
-    //etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)? {return crearNodo('etiqueta', {tag, id, vars})}
-
     {
-        name: 'Etiqueta',
+        name: 'StrComilla',
         extends: 'Expression',
         props: [
             {
-                name: 'tag',
-                type: 'string|null',
-                description: 'Etiqueta de la expresion'
-            },
-            {
-                name: 'id',
-                type: 'Expression',
-                description: 'Identificador de la etiqueta'
-            },
-            {
-                name: 'vars',
-                type: 'Expression|null',
-                description: 'Varios de la etiqueta'
-            }
-        ]
-    },
-
-    // expresiones  =  expr:identificador { usos.push(id); return crearNodo('expresiones', {expr}) }
-    // / expr:literales opI:"i"?    { return crearNodo('expresiones', {expr,opI}) }
-    // / "(" _ expr:opciones _ ")"   { return crearNodo('expresiones', {expr}) }
-    // / expr:corchetes opI:"i"? { return crearNodo('expresiones', {expr,opI}) }
-    // / expr:"." {return crearNodo('expresiones', {expr})}
-    // / expr:"!."  {return crearNodo('expresiones', {expr})}
-    {
-        name: 'Expresiones',
-        extends: 'Expression',
-        props: [
-            {
-                name: 'exp',
+                name: 'expr',
                 type: 'Expression',
                 description: 'Expresion de la union'
+            },
+            {
+                name: 'opI',
+                type: 'string|null',
+                description: 'Identificador de la expresion'
             }
         ]
     },
@@ -173,20 +146,6 @@ const configuracionNodos = [
         ]
     },
 
-
-    //return crearNodo('corchetes', {contenido})  
-
-    {
-        name: 'Corchetes',
-        extends: 'Expression',
-        props: [
-            {
-                name: 'contenido',
-                type: 'Expression',
-                description: 'Contenido de la expresion'
-            }
-        ]
-    },
 
 
     //crearNodo('rango', {inicio, fin})  
@@ -208,61 +167,7 @@ const configuracionNodos = [
         ]
     },
 
-    //caracter = char:[a-zA-Z0-9_ ] {return crearNodo('caracter', {char})}
-    {
-        name: 'Caracter',
-        extends: 'Expression',
-        props: [
-            {
-                name: 'char',
-                type: 'string',
-                description: 'Caracter de la expresion'
-            }
-        ]
-    },
 
-    //contenido = cont:(corchete / texto)+  {return crearNodo('contenido', {cont})}
-
-    {
-        name: 'Contenido',
-        extends: 'Expression',
-        props: [
-            {
-                name: 'cont',
-                type: 'Expression',
-                description: 'Contenido de la expresion'
-            }
-        ]
-    },
-
-    //corchete = "[" cont:contenido "]"    {return crearNodo('corchete', {cont})}
-
-    {
-        name: 'Corchete',
-        extends: 'Expression',
-        props: [
-            {
-                name: 'cont',
-                type: 'Expression',
-                description: 'Contenido de la expresion'
-            }
-        ]
-    },
-
-    //texto = txt:[^\[\]]+  {return crearNodo('texto', {txt})}
-
-    {
-
-        name: 'Texto',
-        extends: 'Expression',
-        props: [
-            {
-                name: 'txt',
-                type: 'string',
-                description: 'Texto de la expresion'
-            }
-        ]
-    },
 
 
     //numero = num:[0-9]+ {return crearNodo('numero', {num})}
@@ -277,43 +182,7 @@ const configuracionNodos = [
                 description: 'Numero de la expresion'
             }
         ]
-    },
-
-    //identificador = id:[_a-z]i[_a-z0-9]i* {return crearNodo('identificador', {id})}
-
-    {
-        name: 'Identificador',
-        extends: 'Expression',
-        props: [
-            {
-                name: 'id',
-                type: 'string',
-                description: 'Identificador de la expresion'
-            }
-        ]
-    },
-
-
-    // literales = '"' lit:stringDobleComilla* '"'   {return crearNodo('literales', {lit})}
-
-    { 
-        name: 'Literales',
-        extends: 'Expression',
-        props: [
-            {
-                name: 'lit',
-                type: 'string',
-                description: 'Literales de la expresion'
-            },
-            {
-                name: 'opI',
-                type: 'string',
-                description: 'Opcion de la expresion'
-            }
-        ]
-
     }
-
 ]
 
 

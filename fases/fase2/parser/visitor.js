@@ -16,40 +16,16 @@
  * @typedef {import('./nodos').Expresion} Expresion
 
 
- * @typedef {import('./nodos').Etiqueta} Etiqueta
-
-
- * @typedef {import('./nodos').Expresiones} Expresiones
+ * @typedef {import('./nodos').StrComilla} StrComilla
 
 
  * @typedef {import('./nodos').Conteo} Conteo
 
 
- * @typedef {import('./nodos').Corchetes} Corchetes
-
-
  * @typedef {import('./nodos').Rango} Rango
 
 
- * @typedef {import('./nodos').Caracter} Caracter
-
-
- * @typedef {import('./nodos').Contenido} Contenido
-
-
- * @typedef {import('./nodos').Corchete} Corchete
-
-
- * @typedef {import('./nodos').Texto} Texto
-
-
  * @typedef {import('./nodos').Numero} Numero
-
-
- * @typedef {import('./nodos').Identificador} Identificador
-
-
- * @typedef {import('./nodos').Literales} Literales
 
  */
 
@@ -107,20 +83,11 @@ export class BaseVisitor {
     
 
     /**
-     * @param {Etiqueta} node
+     * @param {StrComilla} node
      * @returns {any}
      */
-    visitEtiqueta(node) {
-        throw new Error('Metodo visitEtiqueta no implementado');
-    }
-    
-
-    /**
-     * @param {Expresiones} node
-     * @returns {any}
-     */
-    visitExpresiones(node) {
-        throw new Error('Metodo visitExpresiones no implementado');
+    visitStrComilla(node) {
+        throw new Error('Metodo visitStrComilla no implementado');
     }
     
 
@@ -134,15 +101,6 @@ export class BaseVisitor {
     
 
     /**
-     * @param {Corchetes} node
-     * @returns {any}
-     */
-    visitCorchetes(node) {
-        throw new Error('Metodo visitCorchetes no implementado');
-    }
-    
-
-    /**
      * @param {Rango} node
      * @returns {any}
      */
@@ -152,65 +110,11 @@ export class BaseVisitor {
     
 
     /**
-     * @param {Caracter} node
-     * @returns {any}
-     */
-    visitCaracter(node) {
-        throw new Error('Metodo visitCaracter no implementado');
-    }
-    
-
-    /**
-     * @param {Contenido} node
-     * @returns {any}
-     */
-    visitContenido(node) {
-        throw new Error('Metodo visitContenido no implementado');
-    }
-    
-
-    /**
-     * @param {Corchete} node
-     * @returns {any}
-     */
-    visitCorchete(node) {
-        throw new Error('Metodo visitCorchete no implementado');
-    }
-    
-
-    /**
-     * @param {Texto} node
-     * @returns {any}
-     */
-    visitTexto(node) {
-        throw new Error('Metodo visitTexto no implementado');
-    }
-    
-
-    /**
      * @param {Numero} node
      * @returns {any}
      */
     visitNumero(node) {
         throw new Error('Metodo visitNumero no implementado');
-    }
-    
-
-    /**
-     * @param {Identificador} node
-     * @returns {any}
-     */
-    visitIdentificador(node) {
-        throw new Error('Metodo visitIdentificador no implementado');
-    }
-    
-
-    /**
-     * @param {Literales} node
-     * @returns {any}
-     */
-    visitLiterales(node) {
-        throw new Error('Metodo visitLiterales no implementado');
     }
     
 }

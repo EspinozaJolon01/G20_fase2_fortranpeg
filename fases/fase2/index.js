@@ -63,6 +63,14 @@ const analizar = () => {
         // salida.setValue("Análisis Exitoso");
         // Limpiar decoraciones previas si la validación es exitosa
         decorations = editor.deltaDecorations(decorations, []);
+
+        const tokenizer = new GeneratorFortran();
+        const fileContents = tokenizer.generateTokenizer(cst);
+        const blob = new Blob([fileContents], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const button = document.getElementById('fortranBotton');
+        button.href = url;
+
     } catch (e) {
 
         if(e.location === undefined){
@@ -114,39 +122,6 @@ const analizar = () => {
 editor.onDidChangeModelContent(() => {
     analizar();
 });
-
-// Función para descargar archivo .f90
-const descargarArchivo = (contenido, nombreArchivo) => {
-    const blob = new Blob([contenido], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nombreArchivo;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-};
-
-// Función para manejar el click del botón con id="name"
-const boton = document.getElementById('fortranBotton');
-boton.addEventListener('click', () => {
-    const entrada = editor.getValue();
-    try {
-        const grammar = parse(entrada); // Usar el nuevo parser
-        const tokenizer = new GeneratorFortran();
-        const result = tokenizer.generateTokenizer(grammar.produ);
-
-        // Convertir el resultado en un string formateado
-        const resultadoFortran = `! Archivo generado automáticamente\n${JSON.stringify(result, null, 2)}`;
-
-        // Descargar el resultado como un archivo .f90
-        descargarArchivo(resultadoFortran, 'resultado.f90');
-    } catch (e) {
-        salida.setValue(`Error: ${e.message}`);
-    }
-});
-
 
 
 // CSS personalizado para resaltar el error y agregar un warning

@@ -35,42 +35,22 @@ export class GeneratorFortran extends BaseVisitor {
     }
 
 
-    /**
-     * @type {BaseVisitor['visitEtiqueta']}
-     */
-    visitEtiqueta(node) {
-        return node.id.accept(this);
-    }
 
     /**
-     * @type {BaseVisitor['visitExpresiones']}
+     * @type {BaseVisitor['visitStrComilla']}
      */
-    visitExpresiones(node) {
-        return node.exp.accept(this);
-    }
-
-
-
-    /**
-     * @type {BaseVisitor['visitLiterales']}
-     */
-    visitLiterales(node) {
-        if(node.lit==undefined){
-            const template = `
-            if (cursor + ${node.lit.length-1} <= len(input)) then
-                if (input(cursor:cursor+${node.lit.length-1}) == "${node.lit}") then
-                    token = "cadena | ${node.lit}"
-                    has_token = .true.
-                    cursor = cursor + ${node.lit.length}
-                    return
-                end if
-            end if 
+    visitStrComilla(node) {
+            return `
+        if ("${node.expr}" == input(cursor:cursor + ${
+                node.expr.length - 1
+            })) then !Foo
+            allocate( character(len=${node.expr.length}) :: lexeme)
+            lexeme = input(cursor:cursor + ${node.expr.length - 1})
+            cursor = cursor + ${node.expr.length}
+            return
+        end if
         `;
-    
-        return template;
-    }
         }
-    
     
 
     /**
@@ -80,15 +60,6 @@ export class GeneratorFortran extends BaseVisitor {
         throw new Error("Method not implemented.");
     }
 
-
-    /**
-     * @type {BaseVisitor['visitCorchete']}
-     */
-    visitCorchete(node) {
-        throw new Error("Method not implemented.");
-    }
-
-
     /**
      * @type {BaseVisitor['visitRango']}
      */
@@ -96,41 +67,9 @@ export class GeneratorFortran extends BaseVisitor {
         throw new Error("Method not implemented.");
     }
 
-    /**
-     * @type {BaseVisitor['visitCaracter']}
-     */
-    visitCaracter(node) {
-        throw new Error("Method not implemented.");
-    }
-
-    /**
-     * @type {BaseVisitor['visitContenido']}
-     */
-    visitContenido(node) {
-        throw new Error("Method not implemented.");
-    }
-
-    /**
-     * @type {BaseVisitor['visitCorchetes']}
-     */
-    visitCorchetes(node) {
-        throw new Error("Method not implemented.");
-    }
-
-    /**
-     * @type {BaseVisitor['visitTexto']}
-     */
-    visitTexto(node) {
-        throw new Error("Method not implemented.");
-    }
 
 
-    /**
-     * @type {BaseVisitor['visitIdentificador']}
-     */
-    visitIdentificador(node) {
-        throw new Error("Method not implemented.");
-    }
+
 
 
     /**
@@ -147,24 +86,29 @@ export class GeneratorFortran extends BaseVisitor {
     //Generar el tokennizador
 
     generateTokenizer(producciones) {
-        const rules = producciones.map(token => this.visitLiterales(token)).join("\n");
-    
-        const template = `
+        return `
             module tokenizer
             implicit none
-    
+            
             contains
             function nextSym(input, cursor) result(lexeme)
                 character(len=*), intent(in) :: input
                 integer, intent(inout) :: cursor
                 character(len=:), allocatable :: lexeme
-                ${rules}
+            
+                if (cursor > len(input)) then
+                    allocate( character(len=3) :: lexeme )
+                    lexeme = "EOF"
+                    return
+                end if
+            
+                ${producciones.map((produccion) => produccion.accept(this)).join('\n')}
+            
                 print *, "error lexico en col ", cursor, ', "'//input(cursor:cursor)//'"'
+                lexeme = "ERROR"
             end function nextSym
-            end module tokenizer
-        `;
-    
-        return template;
+            end module tokenizer 
+                `;
     }
     
 
