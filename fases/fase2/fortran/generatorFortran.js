@@ -1,5 +1,5 @@
-import { BaseVisitor } from "./visitor.js";
-import { Producciones } from "./nodos.js";
+import { BaseVisitor } from "../tools/visitor.js";
+
 
 
 export class GeneratorFortran extends BaseVisitor {
@@ -66,7 +66,6 @@ export class GeneratorFortran extends BaseVisitor {
     visitRango(node) {
         throw new Error("Method not implemented.");
     }
-
 
 
 

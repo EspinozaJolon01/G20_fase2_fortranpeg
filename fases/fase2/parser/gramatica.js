@@ -2,13 +2,14 @@
 //
 // https://peggyjs.org/
 
-import nodos from "./nodos.js";
+import nodos from "../tools/nodos.js";
 
 
 
     import { ids, usos} from '../index.js'
     import { ErrorReglas } from './error.js';
     import { errores } from '../index.js'
+    
     
 
 function peg$subclass(child, parent) {

@@ -13,7 +13,7 @@
     
 
 /**
- * @typedef {import('./visitor').BaseVisitor} BaseVisitor
+ * @typedef {import('../tools/visitor').BaseVisitor} BaseVisitor
  */
 
 export class Expression   {

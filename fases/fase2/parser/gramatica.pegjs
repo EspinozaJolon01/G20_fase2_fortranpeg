@@ -3,6 +3,7 @@
     import { ErrorReglas } from './error.js';
     import { errores } from '../index.js'
     
+    
 }}
 
 {
@@ -22,6 +23,7 @@
         return nodo;
     }
 }
+
 
 
 gramatica = _ produ:producciones+ _ {
@@ -50,7 +52,7 @@ expresion  = tag:$(etiqueta/varios)? _ exp:expresiones _ count:$([?+*]/conteo)? 
 
 etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)? 
 
-varios = ("!"/"$"/"@"/"&") 
+varios = ("!"/"$"/"@"/"&")     
 
 expresiones  =  expr:identificador { usos.push(id); }
                 / expr:$literales opI:"i"?    { return crearNodo('strComilla', {expr,opI}) }

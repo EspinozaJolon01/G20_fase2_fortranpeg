@@ -131,6 +131,8 @@ const configuracionNodos = [
         ]
     },
 
+    
+
 
     //conteo = val:$("|" _ (numero / id:identificador) _ "|") {return crearNodo('conteo', {val})}
 
@@ -207,7 +209,7 @@ types.forEach(type => {
 // Tipos del visitor
 code += `
 /**
- * @typedef {import('./visitor').BaseVisitor} BaseVisitor
+ * @typedef {import('../tools/visitor').BaseVisitor} BaseVisitor
  */
 `
 
@@ -249,7 +251,7 @@ export default { ${configuracionNodos.map(nodo => nodo.name).join(', ')} }
 `
 
 
-fs.writeFileSync('./nodos.js', code)
+fs.writeFileSync('../tools/nodos.js', code)
 console.log('Archivo de clases de nodo generado correctamente')
 
 
@@ -258,7 +260,7 @@ console.log('Archivo de clases de nodo generado correctamente')
 code = `
 /**
 ${configuracionNodos.map(nodo => `
- * @typedef {import('./nodos').${nodo.name}} ${nodo.name}
+ * @typedef {import('../tools/nodos').${nodo.name}} ${nodo.name}
 `).join('\n')}
  */
 `
@@ -284,5 +286,5 @@ export class BaseVisitor {
 }
 `
 
-fs.writeFileSync('./visitor.js', code)
+fs.writeFileSync('../tools/visitor.js', code)
 console.log('Archivo de visitor generado correctamente')

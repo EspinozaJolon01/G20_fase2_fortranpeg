@@ -1,31 +1,31 @@
 
 /**
 
- * @typedef {import('./nodos').Expression } Expression 
+ * @typedef {import('../tools/nodos').Expression } Expression 
 
 
- * @typedef {import('./nodos').Producciones} Producciones
+ * @typedef {import('../tools/nodos').Producciones} Producciones
 
 
- * @typedef {import('./nodos').Opciones} Opciones
+ * @typedef {import('../tools/nodos').Opciones} Opciones
 
 
- * @typedef {import('./nodos').Union} Union
+ * @typedef {import('../tools/nodos').Union} Union
 
 
- * @typedef {import('./nodos').Expresion} Expresion
+ * @typedef {import('../tools/nodos').Expresion} Expresion
 
 
- * @typedef {import('./nodos').StrComilla} StrComilla
+ * @typedef {import('../tools/nodos').StrComilla} StrComilla
 
 
- * @typedef {import('./nodos').Conteo} Conteo
+ * @typedef {import('../tools/nodos').Conteo} Conteo
 
 
- * @typedef {import('./nodos').Rango} Rango
+ * @typedef {import('../tools/nodos').Rango} Rango
 
 
- * @typedef {import('./nodos').Numero} Numero
+ * @typedef {import('../tools/nodos').Numero} Numero
 
  */
 
