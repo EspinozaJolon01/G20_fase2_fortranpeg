@@ -9,14 +9,14 @@
 {
     const crearNodo = (tipoNodo, propiedades) => {
         const tipos = {
-            'numero': nodos.Numero,
-            'rango': nodos.Rango,
+            'contenidoRango': nodos.ContenidoRango,
             'producciones': nodos.Producciones,
             'opciones': nodos.Opciones,
             'union': nodos.Union,
             'expresion': nodos.Expresion,
             'strComilla': nodos.StrComilla,
             'conteo': nodos.Conteo,
+            'clase': nodos.Clase
         }
         const nodo = new tipos[tipoNodo](propiedades);
         nodo.location = location();
@@ -57,7 +57,7 @@ varios = ("!"/"$"/"@"/"&")
 expresiones  =  expr:identificador { usos.push(id); }
                 / expr:$literales opI:"i"?    { return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) }
                 / "(" _ expr:opciones _ ")"   
-                / expr:corchetes opI:"i"? 
+                / expr:clase opI:"i"?  { return crearNodo('clase', {expr,opI}) }
                 / expr:"." 
                 / expr:"!."  
 
@@ -75,36 +75,12 @@ conteo = val:$("|" _ (numero / id:identificador) _ "|") {return crearNodo('conte
 // delimitador =  "," _ expresion
 
 // Regla principal que analiza corchetes con contenido
-corchetes
-    = "[" contenido:(rango / contenido)+ "]" {
-        return `Entrada válida: [${input}]`; return crearNodo('corchetes', {contenido})
-    }
+clase
+    = "[" @contenidoRango+ "]" 
 
-// Regla para validar un rango como [A-Z]
-rango
-    = inicio:caracter "-" fin:caracter {
-        if (inicio.charCodeAt(0) > fin.charCodeAt(0)) {
-            throw new Error(`Rango inválido: [${inicio}-${fin}]`);
+contenidoRango = inicio:$[^\[\]] "-" fin:$[^\[\]] {return crearNodo('contenidoRango', {inicio,fin})}
+                / $[^\[\]]
 
-        }
-        return `${inicio}-${fin}`;
-
-        return crearNodo('rango', {inicio, fin})
-    }
-
-// Regla para caracteres individuales
-caracter
-    = char:[a-zA-Z0-9_ ] {return text()}
-
-// Coincide con cualquier contenido que no incluya "]"
-contenido
-    = cont:(corchete / texto)+  
-
-corchete
-    = "[" cont:contenido "]"    
-
-texto
-    = txt:[^\[\]]+  
 
 literales = '"' @stringDobleComilla* '"'  
             / "'" @stringSimpleComilla* "'"  
@@ -134,12 +110,7 @@ escape = "'"
 
 secuenciaFinLinea = ("\r\n" / "\n" / "\r" / "\u2028" / "\u2029") 
 
-// literales = 
-//     "\"" [^"]* "\""
-//     / "'" [^']* "'"
-    
-
-numero = num:[0-9]+ {return crearNodo('numero', {num})}
+numero = num:[0-9]+ 
 
 identificador = id:[_a-z]i[_a-z0-9]i* {return text()}
 

@@ -206,20 +206,28 @@ export class StrComilla extends Expression {
     }
 }
     
-export class Conteo extends Expression {
+export class Clase extends Expression {
 
     /**
     * @param {Object} options
-    * @param {Expression} options.val Valor de la expresion
+    * @param {Expression} options.expr Expresion de la union
+ * @param {string|null} options.opI Identificador de la expresion
     */
-    constructor({ val }) {
+    constructor({ expr, opI }) {
         super();
         
         /**
-         * Valor de la expresion
+         * Expresion de la union
          * @type {Expression}
         */
-        this.val = val;
+        this.expr = expr;
+
+
+        /**
+         * Identificador de la expresion
+         * @type {string|null}
+        */
+        this.opI = opI;
 
     }
 
@@ -227,11 +235,11 @@ export class Conteo extends Expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitConteo(this);
+        return visitor.visitClase(this);
     }
 }
     
-export class Rango extends Expression {
+export class ContenidoRango extends Expression {
 
     /**
     * @param {Object} options
@@ -260,33 +268,8 @@ export class Rango extends Expression {
      * @param {BaseVisitor} visitor
      */
     accept(visitor) {
-        return visitor.visitRango(this);
+        return visitor.visitContenidoRango(this);
     }
 }
     
-export class Numero extends Expression {
-
-    /**
-    * @param {Object} options
-    * @param {number} options.num Numero de la expresion
-    */
-    constructor({ num }) {
-        super();
-        
-        /**
-         * Numero de la expresion
-         * @type {number}
-        */
-        this.num = num;
-
-    }
-
-    /**
-     * @param {BaseVisitor} visitor
-     */
-    accept(visitor) {
-        return visitor.visitNumero(this);
-    }
-}
-    
-export default { Expression , Producciones, Opciones, Union, Expresion, StrComilla, Conteo, Rango, Numero }
+export default { Expression , Producciones, Opciones, Union, Expresion, StrComilla, Clase, ContenidoRango }

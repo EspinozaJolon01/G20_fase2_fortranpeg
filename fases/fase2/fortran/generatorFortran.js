@@ -1,5 +1,5 @@
 import { BaseVisitor } from "../tools/visitor.js";
-
+import {ContenidoRango} from "../tools/nodos.js";
 
 
 export class GeneratorFortran extends BaseVisitor {
@@ -108,21 +108,45 @@ export class GeneratorFortran extends BaseVisitor {
     }
 
     /**
-     * @type {BaseVisitor['visitRango']}
+     * @type {BaseVisitor['visitContenidoRango']}
      */
-    visitRango(node) {
-        throw new Error("Method not implemented.");
+    visitContenidoRango(node) {
+            return `
+        if (input(i:i) >= "${node.inicio}" .and. input(i:i) <= "${node.fin}") then
+            lexeme = input(cursor:i)
+            cursor = i + 1
+            return
+        end if
+            `;
+        
     }
 
+    generateCaracteres(chars) {
+        console.log(chars);
+        if (chars.length === 0) return '';
+        return `
+    if (findloc([${chars
+        .map((char) => `"${char}"`)
+        .join(', ')}], input(i:i), 1) > 0) then
+        lexeme = input(cursor:i)
+        cursor = i + 1
+        return
+    end if
+        `;
+    }
 
-
-
-
-    /**
-     * @type {BaseVisitor['visitNumero']}
-     */
-    visitNumero(node) {
-        throw new Error("Method not implemented.");
+    visitClase(node) {
+        console.log(node);
+        return `
+        i = cursor
+        ${this.generateCaracteres(
+            node.expr.filter((node) => typeof node === 'string')
+        )}
+        ${node.expr
+            .filter((node) => node instanceof ContenidoRango)
+            .map((range) => range.accept(this))
+            .join('\n')}
+            `;
     }
 
 
@@ -141,6 +165,7 @@ export class GeneratorFortran extends BaseVisitor {
                 character(len=*), intent(in) :: input
                 integer, intent(inout) :: cursor
                 character(len=:), allocatable :: lexeme
+                integer :: i
             
                 if (cursor > len(input)) then
                     allocate( character(len=3) :: lexeme )

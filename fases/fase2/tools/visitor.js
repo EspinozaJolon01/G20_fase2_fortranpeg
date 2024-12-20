@@ -19,13 +19,10 @@
  * @typedef {import('../tools/nodos').StrComilla} StrComilla
 
 
- * @typedef {import('../tools/nodos').Conteo} Conteo
+ * @typedef {import('../tools/nodos').Clase} Clase
 
 
- * @typedef {import('../tools/nodos').Rango} Rango
-
-
- * @typedef {import('../tools/nodos').Numero} Numero
+ * @typedef {import('../tools/nodos').ContenidoRango} ContenidoRango
 
  */
 
@@ -92,29 +89,20 @@ export class BaseVisitor {
     
 
     /**
-     * @param {Conteo} node
+     * @param {Clase} node
      * @returns {any}
      */
-    visitConteo(node) {
-        throw new Error('Metodo visitConteo no implementado');
+    visitClase(node) {
+        throw new Error('Metodo visitClase no implementado');
     }
     
 
     /**
-     * @param {Rango} node
+     * @param {ContenidoRango} node
      * @returns {any}
      */
-    visitRango(node) {
-        throw new Error('Metodo visitRango no implementado');
-    }
-    
-
-    /**
-     * @param {Numero} node
-     * @returns {any}
-     */
-    visitNumero(node) {
-        throw new Error('Metodo visitNumero no implementado');
+    visitContenidoRango(node) {
+        throw new Error('Metodo visitContenidoRango no implementado');
     }
     
 }

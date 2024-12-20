@@ -131,29 +131,28 @@ const configuracionNodos = [
         ]
     },
 
-    
-
-
-    //conteo = val:$("|" _ (numero / id:identificador) _ "|") {return crearNodo('conteo', {val})}
-
     {
-        name: 'Conteo',
+        name:'Clase',
         extends: 'Expression',
         props: [
             {
-                name: 'val',
+                name: 'expr',
                 type: 'Expression',
-                description: 'Valor de la expresion'
+                description: 'Expresion de la union'
+            },
+            {
+                name: 'opI',
+                type: 'string|null',
+                description: 'Identificador de la expresion'
             }
         ]
     },
 
 
-
     //crearNodo('rango', {inicio, fin})  
 
     {
-        name: 'Rango',
+        name: 'ContenidoRango',
         extends: 'Expression',
         props: [
             {
@@ -174,17 +173,7 @@ const configuracionNodos = [
 
     //numero = num:[0-9]+ {return crearNodo('numero', {num})}
 
-    {
-        name: 'Numero',
-        extends: 'Expression',
-        props: [
-            {
-                name: 'num',
-                type: 'number',
-                description: 'Numero de la expresion'
-            }
-        ]
-    }
+
 ]
 
 
