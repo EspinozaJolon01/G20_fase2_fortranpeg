@@ -34,6 +34,7 @@ export class GeneratorFortran extends BaseVisitor {
         
         if (node.count =="+"){
             return `
+            !expresión +
             if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
                 do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}")
                 lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
@@ -43,26 +44,28 @@ export class GeneratorFortran extends BaseVisitor {
             end if
             `
         }else if (node.count === "*"){
-            return `            
+            return `  
+            !expresión *          
                 if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
                     do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}")
                         lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
                         cursor = cursor + ${node.exp.expr.length}
                     end do
-                end if
                 return
+                end if
                 `
         }else if (node.count === "?"){
             return `  
-            IF ((cursor+2 > LEN_TRIM(input)).or.(("${node.exp.expr}" == input(cursor:cursor+${node.exp.expr.length - 1})))) THEN
-            PRINT *, "cadena valida "
+            !expresión ?
+            if ((cursor+2 > len_trim(input)).or.(("${node.exp.expr}" == input(cursor:cursor+${node.exp.expr.length - 1})))) then
             if ("${node.exp.expr}" == input(cursor:cursor + ${node.exp.expr.length - 1})) then
                 allocate(character(len=${node.exp.expr.length}) :: lexeme)
                 lexeme = input(cursor:cursor + ${node.exp.expr.length - 1})
                 cursor = cursor + ${node.exp.expr.length }
-            end if            
-            RETURN
-        END IF
+                        
+            return
+            end if
+        end if
             `
         }
         return node.exp.accept(this);
@@ -77,6 +80,7 @@ export class GeneratorFortran extends BaseVisitor {
         if (node.opI === 'i') {
             return `
         block
+            !string i 
             character(len=${node.expr.length}) :: temp_str
             logical :: is_match
             integer :: i, char_code
@@ -104,6 +108,7 @@ export class GeneratorFortran extends BaseVisitor {
         end block`;
         } else {
             return `
+            !string 
         if  (((input(cursor:cursor + ${node.expr.length - 1}) == "${node.expr}"))) then
             allocate(character(len=${node.expr.length}) :: lexeme)
             lexeme = input(cursor:cursor + ${node.expr.length - 1})
