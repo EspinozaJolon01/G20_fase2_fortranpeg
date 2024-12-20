@@ -152,18 +152,71 @@ export class GeneratorFortran extends BaseVisitor {
         `;
     }
 
+
+    
+    /**
+     * @type {BaseVisitor['visitClase']}
+     */
     visitClase(node) {
-        console.log(node);
-        return `
-        i = cursor
-        ${this.generateCaracteres(
-            node.expr.filter((node) => typeof node === 'string')
-        )}
-        ${node.expr
-            .filter((node) => node instanceof ContenidoRango)
-            .map((range) => range.accept(this))
-            .join('\n')}
-            `;
+
+        if (node.opI === 'i') {
+            const caracteres = node.expr
+                .filter((node) => typeof node === 'string')
+                .map(char => `"${char.toUpperCase()}"`);
+                
+            return `
+            block
+                !clase i en rango
+                character(len=1) :: temp_str
+                logical :: is_match
+                    integer :: i, char_code
+                
+                    is_match = .false.
+                    temp_str = input(cursor:cursor)
+                
+                    ! Convertir a mayúsculas el carácter de entrada
+                    char_code = iachar(temp_str)
+                    if (char_code >= iachar('a') .and. char_code <= iachar('z')) then
+                        temp_str = achar(char_code - 32)
+                    end if
+                    
+                    ! Verificar si está en el conjunto de caracteres
+                    if (findloc([${caracteres.join(', ')}], temp_str, 1) > 0) then
+                        is_match = .true.
+                    end if
+        
+                    ! Verificar rangos si existen
+                    ${node.expr
+                        .filter((node) => node instanceof ContenidoRango)
+                        .map(range => `
+                            ! Verificar rango ${range.inicio}-${range.fin}
+                            if (.not. is_match) then
+                                if (temp_str >= "${range.inicio.toUpperCase()}" .and. temp_str <= "${range.fin.toUpperCase()}") then
+                                    is_match = .true.
+                                end if
+                            end if
+                        `).join('\n')
+                    }
+                
+                    if (is_match) then
+                        lexeme = input(cursor:cursor)
+                        cursor = cursor + 1
+                        return
+                    end if
+                end block`;
+            } else {
+                return `
+                i = cursor
+                ${this.generateCaracteres(
+                    node.expr.filter((node) => typeof node === 'string')
+                )}
+                ${node.expr
+                    .filter((node) => node instanceof ContenidoRango)
+                    .map((range) => range.accept(this))
+                    .join('\n')}
+                `;
+
+        }
     }
 
 
