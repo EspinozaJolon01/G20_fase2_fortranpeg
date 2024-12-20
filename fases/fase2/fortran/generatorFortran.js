@@ -92,7 +92,7 @@ export class GeneratorFortran extends BaseVisitor {
         end block`;
         } else {
             return `
-        if  (((input(cursor:cursor + ${node.expr.length - 1}) == "${node.expr}") .and. (input(cursor+${node.expr.length}:cursor + ${node.expr.length+node.expr.length - 1}) /= "${node.expr}"))) then
+        if  (((input(cursor:cursor + ${node.expr.length - 1}) == "${node.expr}"))) then
             allocate(character(len=${node.expr.length}) :: lexeme)
             lexeme = input(cursor:cursor + ${node.expr.length - 1})
             cursor = cursor + ${node.expr.length}
