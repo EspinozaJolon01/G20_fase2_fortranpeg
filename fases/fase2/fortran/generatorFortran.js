@@ -52,6 +52,18 @@ export class GeneratorFortran extends BaseVisitor {
                 end if
                 return
                 `
+        }else if (node.count === "?"){
+            return `  
+            IF ((cursor+2 > LEN_TRIM(input)).or.(("${node.exp.expr}" == input(cursor:cursor+${node.exp.expr.length - 1})))) THEN
+            PRINT *, "cadena valida "
+            if ("${node.exp.expr}" == input(cursor:cursor + ${node.exp.expr.length - 1})) then
+                allocate(character(len=${node.exp.expr.length}) :: lexeme)
+                lexeme = input(cursor:cursor + ${node.exp.expr.length - 1})
+                cursor = cursor + ${node.exp.expr.length }
+            end if            
+            RETURN
+        END IF
+            `
         }
         return node.exp.accept(this);
     }
