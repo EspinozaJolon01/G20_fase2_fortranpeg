@@ -278,8 +278,8 @@ function peg$parse(input, options) {
   var peg$f1 = function(id, lit, opc) { ids.push(id); return crearNodo('producciones', { id,opc,lit }) };
   var peg$f2 = function(opc, opcs) { return crearNodo('opciones', { listOpciones: [opc,...opcs ]}) };
   var peg$f3 = function(exp, exprs) {return crearNodo('union', {listUnion: [exp, ...exprs]})};
-  var peg$f4 = function(tag, exp, count) {  debugger; return crearNodo('expresion', {exp,tag,count}) };
-  var peg$f5 = function(tag, id, vars) { debugger; return { id, vars, tag} };
+  var peg$f4 = function(tag, exp, count) { return crearNodo('expresion', {exp,tag,count}) };
+  var peg$f5 = function(tag, id, vars) { return { id, vars, tag} };
   var peg$f6 = function(vario) { return vario };
   var peg$f7 = function(expr) { usos.push(expr); return crearNodo('identificador', {expr}) };
   var peg$f8 = function(expr, opI) { return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) };

@@ -1,5 +1,7 @@
 import { BaseVisitor } from "../tools/visitor.js";
 import {ContenidoRango} from "../tools/nodos.js";
+import {StrComilla} from "../tools/nodos.js";
+import {Clase} from "../tools/nodos.js";
 
 
 export class GeneratorFortran extends BaseVisitor {
@@ -44,8 +46,33 @@ export class GeneratorFortran extends BaseVisitor {
             end if
             `
         }else if (node.count === "*"){
-            return `  
-            !expresión *          
+            if (node.exp.expr.filter((node) => node instanceof Clase)){
+                return `
+
+                !expresión rango *
+                ${this.generateCaracteres(
+                    node.exp.expr.filter((node) => typeof node === 'string')
+                )}
+                ${node.exp.expr
+                    .filter((node) => node instanceof ContenidoRango)
+                    .map((range) => range.accept(this))
+                    .join('\n')}
+                        ! Verificar si no se encontraron caracteres válidos
+            if (len(lexeme) == 0) then
+                if (allocated(lexeme)) deallocate(lexeme)  ! Desasignar si ya estaba asignado
+                allocate(character(len=5) :: lexeme)
+                lexeme = "ERROR"
+                print *, "Error léxico: sin caracteres válidos en col ", cursor
+                return
+            end if
+            cursor = cursor + len(lexeme)
+            return
+
+
+                    `;
+            }else{
+                return `  
+            !expresión normal*          
                 if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
                     do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}")
                         lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
@@ -54,6 +81,7 @@ export class GeneratorFortran extends BaseVisitor {
                 return
                 end if
                 `
+            }
         }else if (node.count === "?"){
             return `  
             !expresión ?
@@ -124,33 +152,64 @@ export class GeneratorFortran extends BaseVisitor {
         throw new Error("Method not implemented.");
     }
 
-    /**
+     /**
      * @type {BaseVisitor['visitContenidoRango']}
      */
-    visitContenidoRango(node) {
-            return `
-        if (input(i:i) >= "${node.inicio}" .and. input(i:i) <= "${node.fin}") then
-            lexeme = input(cursor:i)
-            cursor = i + 1
-            return
-        end if
-            `;
+     visitContenidoRango(node) {
+        //     return `
+        // if (input(i:i) >= "${node.inicio}" .and. input(i:i) <= "${node.fin}") then
+        //     lexeme = input(cursor:i)
+        //     cursor = i + 1
+        //     return
+        // end if
+        //     `;
+        return `
+    
+        if (allocated(lexeme)) deallocate(lexeme)  ! Desasignar si ya estaba asignado
+        allocate(character(len=0) :: lexeme)
+
+        do i = cursor, len_trim(input)
+            if (input(i:i) >= "${node.inicio}" .and. input(i:i) <= "${node.fin}") then
+                lexeme = lexeme // input(i:i)
+            else
+                ! Encontrar un carácter fuera del rango y lanzar error léxico
+                print *, "Error léxico: carácter no válido en col ", i, ', "' // input(i:i) // '"'
+                if (allocated(lexeme)) deallocate(lexeme)  ! Desasignar antes de asignar ERROR
+                allocate(character(len=5) :: lexeme)
+                lexeme = "ERROR"
+                return
+            end if
+        end do
+        cursor = cursor + len(lexeme)
+
+       
+        
+    `;
         
     }
+
+
 
     generateCaracteres(chars) {
         console.log(chars);
         if (chars.length === 0) return '';
         return `
-    if (findloc([${chars
-        .map((char) => `"${char}"`)
-        .join(', ')}], input(i:i), 1) > 0) then
-        lexeme = input(cursor:i)
-        cursor = i + 1
-        return
-    end if
-        `;
-    }
+        if (allocated(lexeme)) deallocate(lexeme)  ! Asegurarse de liberar el lexeme si ya está asignado
+        allocate(character(len=0) :: lexeme)
+
+        do i = cursor, len_trim(input)
+            if (findloc([${chars.map((char) => `"${char}"`).join(', ')}], input(i:i), 1) > 0) then
+                lexeme = lexeme // input(i:i)
+            else
+                exit  ! Salir si se encuentra un carácter no permitido
+            end if
+        end do
+
+        cursor = cursor + len(lexeme)
+
+      
+    `;
+        }
 
 
     

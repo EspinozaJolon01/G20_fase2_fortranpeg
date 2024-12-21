@@ -49,9 +49,9 @@ opciones = opc: union opcs:(_ "/" _ @union)* { return crearNodo('opciones', { li
 
 union = exp: expresion exprs:(_ @expresion !(_ literales? _ "=") )* {return crearNodo('union', {listUnion: [exp, ...exprs]})}
 
-expresion  = tag:$(etiqueta/varios)? _ exp:expresiones _ count:$([?+*]/conteo)? {  debugger; return crearNodo('expresion', {exp,tag,count}) }
+expresion  = tag:$(etiqueta/varios)? _ exp:expresiones _ count:$([?+*]/conteo)? { return crearNodo('expresion', {exp,tag,count}) }
 
-etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)?  { debugger; return { id, vars, tag} }
+etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)?  { return { id, vars, tag} }
 
 varios = vario:("!"/"$"/"@"/"&")   { return vario }   
 
