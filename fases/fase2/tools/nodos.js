@@ -272,4 +272,29 @@ export class ContenidoRango extends Expression {
     }
 }
     
-export default { Expression , Producciones, Opciones, Union, Expresion, StrComilla, Clase, ContenidoRango }
+export class Identificador extends Expression {
+
+    /**
+    * @param {Object} options
+    * @param {Expression} options.expr Expresion de la union
+    */
+    constructor({ expr }) {
+        super();
+        
+        /**
+         * Expresion de la union
+         * @type {Expression}
+        */
+        this.expr = expr;
+
+    }
+
+    /**
+     * @param {BaseVisitor} visitor
+     */
+    accept(visitor) {
+        return visitor.visitIdentificador(this);
+    }
+}
+    
+export default { Expression , Producciones, Opciones, Union, Expresion, StrComilla, Clase, ContenidoRango, Identificador }

@@ -251,6 +251,18 @@ export class GeneratorFortran extends BaseVisitor {
             end module tokenizer 
                 `;
     }
+
+
+    /**
+     * @type {BaseVisitor['visitIdentificador']}
+     */
+    visitIdentificador(node) {
+        
+    }
+
+
+
+    
     
 
 

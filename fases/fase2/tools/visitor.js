@@ -24,6 +24,9 @@
 
  * @typedef {import('../tools/nodos').ContenidoRango} ContenidoRango
 
+
+ * @typedef {import('../tools/nodos').Identificador} Identificador
+
  */
 
 
@@ -103,6 +106,15 @@ export class BaseVisitor {
      */
     visitContenidoRango(node) {
         throw new Error('Metodo visitContenidoRango no implementado');
+    }
+    
+
+    /**
+     * @param {Identificador} node
+     * @returns {any}
+     */
+    visitIdentificador(node) {
+        throw new Error('Metodo visitIdentificador no implementado');
     }
     
 }

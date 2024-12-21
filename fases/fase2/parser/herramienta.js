@@ -171,7 +171,18 @@ const configuracionNodos = [
 
 
 
-    //numero = num:[0-9]+ {return crearNodo('numero', {num})}
+    //expr:identificador { usos.push(id); return crearNodo('identificador', {expr}) }
+    {
+        name: 'Identificador',
+        extends: 'Expression',
+        props: [
+            {
+                name: 'expr',
+                type: 'Expression',
+                description: 'Expresion de la union'
+            }
+        ]
+    },
 
 
 ]

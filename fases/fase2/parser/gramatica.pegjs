@@ -16,7 +16,8 @@
             'expresion': nodos.Expresion,
             'strComilla': nodos.StrComilla,
             'conteo': nodos.Conteo,
-            'clase': nodos.Clase
+            'clase': nodos.Clase,
+            'identificador': nodos.Identificador
         }
         const nodo = new tipos[tipoNodo](propiedades);
         nodo.location = location();
@@ -42,19 +43,19 @@ gramatica = _ produ:producciones+ _ {
     return produ
 }
 
-producciones = _ id:identificador _ lit:(literales)? _ "=" _ opc:opciones (_";")? { return crearNodo('producciones', { id,opc,lit }) };
+producciones = _ id:identificador _ lit:(literales)? _ "=" _ opc:opciones (_";")? { ids.push(id); return crearNodo('producciones', { id,opc,lit }) };
 
 opciones = opc: union opcs:(_ "/" _ @union)* { return crearNodo('opciones', { listOpciones: [opc,...opcs ]}) }
 
 union = exp: expresion exprs:(_ @expresion !(_ literales? _ "=") )* {return crearNodo('union', {listUnion: [exp, ...exprs]})}
 
-expresion  = tag:$(etiqueta/varios)? _ exp:expresiones _ count:$([?+*]/conteo)? {return crearNodo('expresion', {exp,tag,count}) }
+expresion  = tag:$(etiqueta/varios)? _ exp:expresiones _ count:$([?+*]/conteo)? {  debugger; return crearNodo('expresion', {exp,tag,count}) }
 
-etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)? 
+etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)?  { debugger; return { id, vars, tag} }
 
-varios = ("!"/"$"/"@"/"&")     
+varios = vario:("!"/"$"/"@"/"&")   { return vario }   
 
-expresiones  =  expr:identificador { usos.push(id); }
+expresiones  =  expr:identificador { usos.push(expr); return crearNodo('identificador', {expr}) }
                 / expr:$literales opI:"i"?    { return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) }
                 / "(" _ expr:opciones _ ")"   
                 / expr:clase opI:"i"?  { return crearNodo('clase', {expr,opI}) }

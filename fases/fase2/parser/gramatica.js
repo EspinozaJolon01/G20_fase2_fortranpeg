@@ -275,19 +275,21 @@ function peg$parse(input, options) {
     }
     return produ
 };
-  var peg$f1 = function(id, lit, opc) { return crearNodo('producciones', { id,opc,lit }) };
+  var peg$f1 = function(id, lit, opc) { ids.push(id); return crearNodo('producciones', { id,opc,lit }) };
   var peg$f2 = function(opc, opcs) { return crearNodo('opciones', { listOpciones: [opc,...opcs ]}) };
   var peg$f3 = function(exp, exprs) {return crearNodo('union', {listUnion: [exp, ...exprs]})};
-  var peg$f4 = function(tag, exp, count) {return crearNodo('expresion', {exp,tag,count}) };
-  var peg$f5 = function(expr) { usos.push(id); };
-  var peg$f6 = function(expr, opI) { return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) };
-  var peg$f7 = function(expr, opI) { return crearNodo('clase', {expr,opI}) };
-  var peg$f8 = function(val) {return crearNodo('conteo', {val})};
-  var peg$f9 = function(val) {return crearNodo('conteo', {val})};
+  var peg$f4 = function(tag, exp, count) {  debugger; return crearNodo('expresion', {exp,tag,count}) };
+  var peg$f5 = function(tag, id, vars) { debugger; return { id, vars, tag} };
+  var peg$f6 = function(vario) { return vario };
+  var peg$f7 = function(expr) { usos.push(expr); return crearNodo('identificador', {expr}) };
+  var peg$f8 = function(expr, opI) { return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) };
+  var peg$f9 = function(expr, opI) { return crearNodo('clase', {expr,opI}) };
   var peg$f10 = function(val) {return crearNodo('conteo', {val})};
   var peg$f11 = function(val) {return crearNodo('conteo', {val})};
-  var peg$f12 = function(inicio, fin) {return crearNodo('contenidoRango', {inicio,fin})};
-  var peg$f13 = function(id) {return text()};
+  var peg$f12 = function(val) {return crearNodo('conteo', {val})};
+  var peg$f13 = function(val) {return crearNodo('conteo', {val})};
+  var peg$f14 = function(inicio, fin) {return crearNodo('contenidoRango', {inicio,fin})};
+  var peg$f15 = function(id) {return text()};
   var peg$currPos = options.peg$currPos | 0;
   var peg$savedPos = peg$currPos;
   var peg$posDetailsCache = [{ line: 1, column: 1 }];
@@ -782,8 +784,8 @@ function peg$parse(input, options) {
         if (s6 === peg$FAILED) {
           s6 = null;
         }
-        s1 = [s1, s2, s3, s4, s5, s6];
-        s0 = s1;
+        peg$savedPos = s0;
+        s0 = peg$f5(s1, s3, s6);
       } else {
         peg$currPos = s0;
         s0 = peg$FAILED;
@@ -797,15 +799,21 @@ function peg$parse(input, options) {
   }
 
   function peg$parsevarios() {
-    var s0;
+    var s0, s1;
 
-    s0 = input.charAt(peg$currPos);
-    if (peg$r1.test(s0)) {
+    s0 = peg$currPos;
+    s1 = input.charAt(peg$currPos);
+    if (peg$r1.test(s1)) {
       peg$currPos++;
     } else {
-      s0 = peg$FAILED;
+      s1 = peg$FAILED;
       if (peg$silentFails === 0) { peg$fail(peg$e6); }
     }
+    if (s1 !== peg$FAILED) {
+      peg$savedPos = s0;
+      s1 = peg$f6(s1);
+    }
+    s0 = s1;
 
     return s0;
   }
@@ -817,7 +825,7 @@ function peg$parse(input, options) {
     s1 = peg$parseidentificador();
     if (s1 !== peg$FAILED) {
       peg$savedPos = s0;
-      s1 = peg$f5(s1);
+      s1 = peg$f7(s1);
     }
     s0 = s1;
     if (s0 === peg$FAILED) {
@@ -841,7 +849,7 @@ function peg$parse(input, options) {
           s2 = null;
         }
         peg$savedPos = s0;
-        s0 = peg$f6(s1, s2);
+        s0 = peg$f8(s1, s2);
       } else {
         peg$currPos = s0;
         s0 = peg$FAILED;
@@ -897,7 +905,7 @@ function peg$parse(input, options) {
               s2 = null;
             }
             peg$savedPos = s0;
-            s0 = peg$f7(s1, s2);
+            s0 = peg$f9(s1, s2);
           } else {
             peg$currPos = s0;
             s0 = peg$FAILED;
@@ -977,7 +985,7 @@ function peg$parse(input, options) {
     }
     if (s1 !== peg$FAILED) {
       peg$savedPos = s0;
-      s1 = peg$f8(s1);
+      s1 = peg$f10(s1);
     }
     s0 = s1;
     if (s0 === peg$FAILED) {
@@ -1047,7 +1055,7 @@ function peg$parse(input, options) {
       }
       if (s1 !== peg$FAILED) {
         peg$savedPos = s0;
-        s1 = peg$f9(s1);
+        s1 = peg$f11(s1);
       }
       s0 = s1;
       if (s0 === peg$FAILED) {
@@ -1116,7 +1124,7 @@ function peg$parse(input, options) {
         }
         if (s1 !== peg$FAILED) {
           peg$savedPos = s0;
-          s1 = peg$f10(s1);
+          s1 = peg$f12(s1);
         }
         s0 = s1;
         if (s0 === peg$FAILED) {
@@ -1206,7 +1214,7 @@ function peg$parse(input, options) {
           }
           if (s1 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$f11(s1);
+            s1 = peg$f13(s1);
           }
           s0 = s1;
         }
@@ -1293,7 +1301,7 @@ function peg$parse(input, options) {
         }
         if (s3 !== peg$FAILED) {
           peg$savedPos = s0;
-          s0 = peg$f12(s1, s3);
+          s0 = peg$f14(s1, s3);
         } else {
           peg$currPos = s0;
           s0 = peg$FAILED;
@@ -1669,7 +1677,7 @@ function peg$parse(input, options) {
         }
       }
       peg$savedPos = s0;
-      s0 = peg$f13(s1);
+      s0 = peg$f15(s1);
     } else {
       peg$currPos = s0;
       s0 = peg$FAILED;
@@ -1864,7 +1872,8 @@ function peg$parse(input, options) {
             'expresion': nodos.Expresion,
             'strComilla': nodos.StrComilla,
             'conteo': nodos.Conteo,
-            'clase': nodos.Clase
+            'clase': nodos.Clase,
+            'identificador': nodos.Identificador
         }
         const nodo = new tipos[tipoNodo](propiedades);
         nodo.location = location();
