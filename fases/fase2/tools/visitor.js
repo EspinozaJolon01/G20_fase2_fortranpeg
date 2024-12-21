@@ -27,6 +27,9 @@
 
  * @typedef {import('../tools/nodos').Identificador} Identificador
 
+
+ * @typedef {import('../tools/nodos').Agrup} Agrup
+
  */
 
 
@@ -115,6 +118,15 @@ export class BaseVisitor {
      */
     visitIdentificador(node) {
         throw new Error('Metodo visitIdentificador no implementado');
+    }
+    
+
+    /**
+     * @param {Agrup} node
+     * @returns {any}
+     */
+    visitAgrup(node) {
+        throw new Error('Metodo visitAgrup no implementado');
     }
     
 }

@@ -184,6 +184,19 @@ const configuracionNodos = [
         ]
     },
 
+    //Agrup
+    {
+        name: 'Agrup',
+        extends: 'Expression',
+        props: [
+            {
+                name: 'expr',
+                type: 'Expression',
+                description: 'Expresion de la union'
+            }
+        ]
+    }
+
 
 ]
 

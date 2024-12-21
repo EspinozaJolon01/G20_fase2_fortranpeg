@@ -320,6 +320,15 @@ export class GeneratorFortran extends BaseVisitor {
     }
 
 
+    /**
+     * @type {BaseVisitor['visitAgrup']}
+     */
+
+    visitAgrup(node){
+        return node.expr.accept(this);
+    }
+
+
 
     
     

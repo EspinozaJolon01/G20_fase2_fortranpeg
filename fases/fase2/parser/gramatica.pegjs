@@ -17,7 +17,8 @@
             'strComilla': nodos.StrComilla,
             'conteo': nodos.Conteo,
             'clase': nodos.Clase,
-            'identificador': nodos.Identificador
+            'identificador': nodos.Identificador,
+            'agrup': nodos.Agrup
         }
         const nodo = new tipos[tipoNodo](propiedades);
         nodo.location = location();
@@ -57,7 +58,7 @@ varios = vario:("!"/"$"/"@"/"&")   { return vario }
 
 expresiones  =  expr:identificador { usos.push(expr); return crearNodo('identificador', {expr}) }
                 / expr:$literales opI:"i"?    { return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) }
-                / "(" _ expr:opciones _ ")"   
+                / "(" _ expr:opciones _ ")"   { return crearNodo('agrup', {expr}) }	
                 / expr:clase opI:"i"?  { return crearNodo('clase', {expr,opI}) }
                 / expr:"." 
                 / expr:"!."  
