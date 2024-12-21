@@ -184,7 +184,7 @@ const configuracionNodos = [
         ]
     },
 
-    //Agrup
+    
     {
         name: 'Agrup',
         extends: 'Expression',
@@ -195,7 +195,39 @@ const configuracionNodos = [
                 description: 'Expresion de la union'
             }
         ]
-    }
+    },
+
+    //expr:"." { return crearNodo('punto', {expr}) }
+
+    {
+        name: 'Punto',
+        extends: 'Expression',
+        props: [
+            {
+                name: 'expr',
+                type: 'Expression',
+                description: 'Expresion de la union'
+            }
+        ]
+    },
+
+    //expr:"!."  {return crearNodo('finCadena', {expr}) }
+
+    {
+        name: 'FinCadena',
+        extends: 'Expression',
+        props: [
+            {
+                name: 'expr',
+                type: 'Expression',
+                description: 'Expresion de la union'
+            }
+        ]
+    },
+
+
+
+
 
 
 ]

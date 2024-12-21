@@ -451,6 +451,22 @@ generateQuantifierCode(quantifier, countVar) {
     }
 
 
+    /**
+     * @type {BaseVisitor['visitPunto']}
+     */
+    visitPunto(node){
+
+    }
+
+    /**
+     * @type {BaseVisitor['visitFinCadena']}
+     */
+
+    visitFinCadena(node){
+
+    }
+
+
 
     
     

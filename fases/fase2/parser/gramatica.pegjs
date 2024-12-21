@@ -18,7 +18,9 @@
             'conteo': nodos.Conteo,
             'clase': nodos.Clase,
             'identificador': nodos.Identificador,
-            'agrup': nodos.Agrup
+            'agrup': nodos.Agrup,
+            'punto': nodos.Punto,
+            'finCadena': nodos.FinCadena
         }
         const nodo = new tipos[tipoNodo](propiedades);
         nodo.location = location();
@@ -60,8 +62,8 @@ expresiones  =  expr:identificador { usos.push(expr); return crearNodo('identifi
                 / expr:$literales opI:"i"?    { return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) }
                 / "(" _ expr:opciones _ ")"   { return crearNodo('agrup', {expr}) }	
                 / expr:clase opI:"i"?  { return crearNodo('clase', {expr,opI}) }
-                / expr:"." 
-                / expr:"!."  
+                / expr:"." { return crearNodo('punto', {expr}) }
+                / expr:"!."  {return crearNodo('finCadena', {expr}) }
 
 // conteo = "|" parteconteo _ (_ delimitador )? _ "|"
 

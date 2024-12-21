@@ -30,6 +30,12 @@
 
  * @typedef {import('../tools/nodos').Agrup} Agrup
 
+
+ * @typedef {import('../tools/nodos').Punto} Punto
+
+
+ * @typedef {import('../tools/nodos').FinCadena} FinCadena
+
  */
 
 
@@ -127,6 +133,24 @@ export class BaseVisitor {
      */
     visitAgrup(node) {
         throw new Error('Metodo visitAgrup no implementado');
+    }
+    
+
+    /**
+     * @param {Punto} node
+     * @returns {any}
+     */
+    visitPunto(node) {
+        throw new Error('Metodo visitPunto no implementado');
+    }
+    
+
+    /**
+     * @param {FinCadena} node
+     * @returns {any}
+     */
+    visitFinCadena(node) {
+        throw new Error('Metodo visitFinCadena no implementado');
     }
     
 }

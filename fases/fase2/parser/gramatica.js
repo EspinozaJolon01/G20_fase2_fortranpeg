@@ -285,12 +285,14 @@ function peg$parse(input, options) {
   var peg$f8 = function(expr, opI) { return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) };
   var peg$f9 = function(expr) { return crearNodo('agrup', {expr}) };
   var peg$f10 = function(expr, opI) { return crearNodo('clase', {expr,opI}) };
-  var peg$f11 = function(val) {return crearNodo('conteo', {val})};
-  var peg$f12 = function(val) {return crearNodo('conteo', {val})};
+  var peg$f11 = function(expr) { return crearNodo('punto', {expr}) };
+  var peg$f12 = function(expr) {return crearNodo('finCadena', {expr}) };
   var peg$f13 = function(val) {return crearNodo('conteo', {val})};
   var peg$f14 = function(val) {return crearNodo('conteo', {val})};
-  var peg$f15 = function(inicio, fin) {return crearNodo('contenidoRango', {inicio,fin})};
-  var peg$f16 = function(id) {return text()};
+  var peg$f15 = function(val) {return crearNodo('conteo', {val})};
+  var peg$f16 = function(val) {return crearNodo('conteo', {val})};
+  var peg$f17 = function(inicio, fin) {return crearNodo('contenidoRango', {inicio,fin})};
+  var peg$f18 = function(id) {return text()};
   var peg$currPos = options.peg$currPos | 0;
   var peg$savedPos = peg$currPos;
   var peg$posDetailsCache = [{ line: 1, column: 1 }];
@@ -912,21 +914,33 @@ function peg$parse(input, options) {
             s0 = peg$FAILED;
           }
           if (s0 === peg$FAILED) {
+            s0 = peg$currPos;
             if (input.charCodeAt(peg$currPos) === 46) {
-              s0 = peg$c8;
+              s1 = peg$c8;
               peg$currPos++;
             } else {
-              s0 = peg$FAILED;
+              s1 = peg$FAILED;
               if (peg$silentFails === 0) { peg$fail(peg$e10); }
             }
+            if (s1 !== peg$FAILED) {
+              peg$savedPos = s0;
+              s1 = peg$f11(s1);
+            }
+            s0 = s1;
             if (s0 === peg$FAILED) {
+              s0 = peg$currPos;
               if (input.substr(peg$currPos, 2) === peg$c9) {
-                s0 = peg$c9;
+                s1 = peg$c9;
                 peg$currPos += 2;
               } else {
-                s0 = peg$FAILED;
+                s1 = peg$FAILED;
                 if (peg$silentFails === 0) { peg$fail(peg$e11); }
               }
+              if (s1 !== peg$FAILED) {
+                peg$savedPos = s0;
+                s1 = peg$f12(s1);
+              }
+              s0 = s1;
             }
           }
         }
@@ -986,7 +1000,7 @@ function peg$parse(input, options) {
     }
     if (s1 !== peg$FAILED) {
       peg$savedPos = s0;
-      s1 = peg$f11(s1);
+      s1 = peg$f13(s1);
     }
     s0 = s1;
     if (s0 === peg$FAILED) {
@@ -1056,7 +1070,7 @@ function peg$parse(input, options) {
       }
       if (s1 !== peg$FAILED) {
         peg$savedPos = s0;
-        s1 = peg$f12(s1);
+        s1 = peg$f14(s1);
       }
       s0 = s1;
       if (s0 === peg$FAILED) {
@@ -1125,7 +1139,7 @@ function peg$parse(input, options) {
         }
         if (s1 !== peg$FAILED) {
           peg$savedPos = s0;
-          s1 = peg$f13(s1);
+          s1 = peg$f15(s1);
         }
         s0 = s1;
         if (s0 === peg$FAILED) {
@@ -1215,7 +1229,7 @@ function peg$parse(input, options) {
           }
           if (s1 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$f14(s1);
+            s1 = peg$f16(s1);
           }
           s0 = s1;
         }
@@ -1302,7 +1316,7 @@ function peg$parse(input, options) {
         }
         if (s3 !== peg$FAILED) {
           peg$savedPos = s0;
-          s0 = peg$f15(s1, s3);
+          s0 = peg$f17(s1, s3);
         } else {
           peg$currPos = s0;
           s0 = peg$FAILED;
@@ -1678,7 +1692,7 @@ function peg$parse(input, options) {
         }
       }
       peg$savedPos = s0;
-      s0 = peg$f16(s1);
+      s0 = peg$f18(s1);
     } else {
       peg$currPos = s0;
       s0 = peg$FAILED;
@@ -1875,7 +1889,9 @@ function peg$parse(input, options) {
             'conteo': nodos.Conteo,
             'clase': nodos.Clase,
             'identificador': nodos.Identificador,
-            'agrup': nodos.Agrup
+            'agrup': nodos.Agrup,
+            'punto': nodos.Punto,
+            'finCadena': nodos.FinCadena
         }
         const nodo = new tipos[tipoNodo](propiedades);
         nodo.location = location();
