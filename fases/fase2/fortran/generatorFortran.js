@@ -260,12 +260,13 @@ export class GeneratorFortran extends BaseVisitor {
                     if (char_code >= iachar('a') .and. char_code <= iachar('z')) then
                         temp_str = achar(char_code - 32)
                     end if
+                    ${caracteres.length > 0 ? `
+                        ! Verificar si está en el conjunto de caracteres
+                        if (findloc([${caracteres.map(char => `${char}`).join(', ')}], temp_str, 1) > 0) then
+                            is_match = .true.
+                        end if
+                    ` : ''}
                     
-                    ! Verificar si está en el conjunto de caracteres
-                    if (findloc([${caracteres.join(', ')}], temp_str, 1) > 0) then
-                        is_match = .true.
-                    end if
-        
                     ! Verificar rangos si existen
                     ${node.expr
                         .filter((node) => node instanceof ContenidoRango)
@@ -307,6 +308,7 @@ export class GeneratorFortran extends BaseVisitor {
     generateCaracteres(chars) {
         if (chars.length === 0) return '';
         return `
+        ! Caracteres ${chars.join(', ')}
         if (findloc([${chars.map((char) => `"${char}"`).join(', ')}], input(cursor:cursor), 1) > 0) then
             allocate(character(len=1) :: lexeme)
             lexeme = input(cursor:cursor)
