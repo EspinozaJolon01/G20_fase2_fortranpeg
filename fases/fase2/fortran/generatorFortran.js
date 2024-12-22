@@ -2,6 +2,7 @@ import { BaseVisitor } from "../tools/visitor.js";
 import {ContenidoRango} from "../tools/nodos.js";
 import {StrComilla} from "../tools/nodos.js";
 import {Clase} from "../tools/nodos.js";
+import {Agrup} from "../tools/nodos.js";
 
 
 export class GeneratorFortran extends BaseVisitor {
@@ -38,11 +39,11 @@ export class GeneratorFortran extends BaseVisitor {
     if (node.exp instanceof Clase && node.count) {
         const baseCode = `
         block
-            integer :: match_count, start_pos
+            integer :: match_count
             logical :: in_range, found_error
             character :: invalid_char
             
-            start_pos = cursor
+            
             match_count = 0
             found_error = .false.
             if (allocated(lexeme)) deallocate(lexeme)
@@ -69,15 +70,11 @@ export class GeneratorFortran extends BaseVisitor {
                     end if`)
                     .join('\n')}
                 
-                if (in_range) then
+
+                    ! Acumular carácter válido en lexeme
                     lexeme = lexeme // input(i:i)
                     match_count = match_count + 1
-                else
-                    ! Guardar el carácter inválido y marcar error
-                    invalid_char = input(i:i)
-                    found_error = .true.
-                    exit
-                end if
+                
             end do
             
             ! Si encontramos un error, reportarlo
@@ -96,8 +93,14 @@ export class GeneratorFortran extends BaseVisitor {
         end block`;
         
         return baseCode;
-    }else{
-        return `  
+    }else if(node.exp instanceof Agrup){
+        return node.exp.accept(this);
+    
+    }else if(node.count){
+
+        if (node.count == '*'){
+            return ` 
+
             !expresión normal*          
                 if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
                     do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}")
@@ -107,52 +110,33 @@ export class GeneratorFortran extends BaseVisitor {
                 return
                 end if
                 `;
+        }else if (node.count == '+'){
+            return `
+            !expresión normal+          
+                if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
+                    allocate(character(len=${node.exp.expr.length}) :: lexeme)
+                    lexeme = input(cursor:cursor + ${node.exp.expr.length - 1})
+                    cursor = cursor + ${node.exp.expr.length}
+                    return
+                end if
+            `;
+        }else if (node.count == '?'){
+            return `
+            !expresión normal?          
+                if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
+                    allocate(character(len=${node.exp.expr.length}) :: lexeme)
+                    lexeme = input(cursor:cursor + ${node.exp.expr.length - 1})
+                    cursor = cursor + ${node.exp.expr.length}
+                    return
+                end if
+            `;
+        }
+        
     }
     
     // Para otros casos, delegar al nodo hijo
     return node.exp.accept(this);
 
-
-
-        
-        // if (node.count =="+"){
-        //     return `
-        //     !expresión +
-        //     if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
-        //         do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}")
-        //         lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
-        //         cursor = cursor + ${node.exp.expr.length}
-        //         end do
-        //         return
-        //     end if
-        //     `
-        // }else if (node.count === "*"){
-        //         return `  
-        //     !expresión normal*          
-        //         if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
-        //             do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}")
-        //                 lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
-        //                 cursor = cursor + ${node.exp.expr.length}
-        //             end do
-        //         return
-        //         end if
-        //         `;
-            
-        // }else if (node.count === "?"){
-        //     return `  
-        //     !expresión ?
-        //     if ((cursor+2 > len_trim(input)).or.(("${node.exp.expr}" == input(cursor:cursor+${node.exp.expr.length - 1})))) then
-        //     if ("${node.exp.expr}" == input(cursor:cursor + ${node.exp.expr.length - 1})) then
-        //         allocate(character(len=${node.exp.expr.length}) :: lexeme)
-        //         lexeme = input(cursor:cursor + ${node.exp.expr.length - 1})
-        //         cursor = cursor + ${node.exp.expr.length }
-                        
-        //     return
-        //     end if
-        // end if
-        //     `
-        // }
-        return node.exp.accept(this);
     }
 
 
@@ -219,28 +203,7 @@ export class GeneratorFortran extends BaseVisitor {
         return
     end if
         `;
-//     return `
 
-//     if (allocated(lexeme)) deallocate(lexeme)  ! Desasignar si ya estaba asignado
-//     allocate(character(len=0) :: lexeme)
-
-//     do i = cursor, len_trim(input)
-//         if (input(i:i) >= "${node.inicio}" .and. input(i:i) <= "${node.fin}") then
-//             lexeme = lexeme // input(i:i)
-//         else
-//             ! Encontrar un carácter fuera del rango y lanzar error léxico
-//             print *, "Error léxico: carácter no válido en col ", i, ', "' // input(i:i) // '"'
-//             if (allocated(lexeme)) deallocate(lexeme)  ! Desasignar antes de asignar ERROR
-//             allocate(character(len=5) :: lexeme)
-//             lexeme = "ERROR"
-//             return
-//         end if
-//     end do
-//     cursor = cursor + len(lexeme)
-
-   
-    
-// `;
     
 }
 
@@ -311,26 +274,6 @@ generateQuantifierCode(quantifier, countVar) {
         return
     end if
     `;
-
-
-//     console.log(chars);
-//     if (chars.length === 0) return '';
-//     return `
-//     if (allocated(lexeme)) deallocate(lexeme)  ! Asegurarse de liberar el lexeme si ya está asignado
-//     allocate(character(len=0) :: lexeme)
-
-//     do i = cursor, len_trim(input)
-//         if (findloc([${chars.map((char) => `"${char}"`).join(', ')}], input(i:i), 1) > 0) then
-//             lexeme = lexeme // input(i:i)
-//         else
-//             exit  ! Salir si se encuentra un carácter no permitido
-//         end if
-//     end do
-
-//     cursor = cursor + len(lexeme)
-
-  
-// `;
     }
 
 
@@ -446,7 +389,8 @@ generateQuantifierCode(quantifier, countVar) {
      * @type {BaseVisitor['visitAgrup']}
      */
 
-    visitAgrup(node){
+    visitAgrup(node) {
+
         return node.expr.accept(this);
     }
 
