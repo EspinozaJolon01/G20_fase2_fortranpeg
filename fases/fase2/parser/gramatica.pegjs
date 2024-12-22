@@ -59,7 +59,7 @@ etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)?  { return { id, va
 varios = vario:("!"/"$"/"@"/"&")   { return vario }   
 
 expresiones  =  expr:identificador { usos.push(expr); return crearNodo('identificador', {expr}) }
-                / expr:$literales opI:"i"?    { return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) }
+                / expr:$literales opI:"i"?    {  return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) }
                 / "(" _ expr:opciones _ ")"   {  return crearNodo('agrup', {expr}) }	
                 / expr:clase opI:"i"?  { return crearNodo('clase', {expr,opI}) }
                 / expr:"." { return crearNodo('punto', {expr}) }

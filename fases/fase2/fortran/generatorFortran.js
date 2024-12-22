@@ -1,151 +1,179 @@
 import { BaseVisitor } from "../tools/visitor.js";
-import {ContenidoRango, Identificador} from "../tools/nodos.js";
-import {StrComilla} from "../tools/nodos.js";
-import {Clase} from "../tools/nodos.js";
-import {Agrup} from "../tools/nodos.js";
-
+import { ContenidoRango, Identificador } from "../tools/nodos.js";
+import { StrComilla } from "../tools/nodos.js";
+import { Clase } from "../tools/nodos.js";
+import { Agrup } from "../tools/nodos.js";
 
 export class GeneratorFortran extends BaseVisitor {
-
-
-    /**
-     * @type {BaseVisitor['visitProducciones']}
-     */
     visitProducciones(node) {
         return node.opc.accept(this);
     }
 
-
-    /**
-     * @type {BaseVisitor['visitOpciones']}
-     */
-    visitOpciones(node){
+    visitOpciones(node) {
         return node.listOpciones.map(opcion => opcion.accept(this)).join('\n');
     }
 
-    /**
-     * @type {BaseVisitor['visitUnion']}
-     */
-    visitUnion(node){
+    visitUnion(node) {
         return node.listUnion.map(union => union.accept(this)).join('\n');
     }
 
-    /**
-     * @type {BaseVisitor['visitExpresion']}
-     */
     visitExpresion(node) {
-
-         // Si es un nodo Clase y tiene cuantificador
-    if (node.exp instanceof Clase && node.count) {
-        const baseCode = `
-        block
-            integer :: match_count
-            logical :: in_range, found_error
-            character :: invalid_char
-            
-            
-            match_count = 0
-            found_error = .false.
-            if (allocated(lexeme)) deallocate(lexeme)
-            allocate(character(len=0) :: lexeme)
-            
-            do i = cursor, len_trim(input)
-                in_range = .false.
+        if (node.exp instanceof Clase && node.count) {
+            const baseCode = `
+            block
+                integer :: match_count, i, start_pos, max_iterations
+                logical :: any_range_match, found_match
+                character :: current_char
+                character(len=:), allocatable :: temp_lexeme
                 
-                ${node.exp.expr
-                    .filter((node) => typeof node === 'string')
-                    .map(char => `
-                    if (input(i:i) == "${char}") then
-                        in_range = .true.
-                    end if`)
-                    .join('\n')}
+                match_count = 0
+                max_iterations = len_trim(input) - cursor + 1
+                found_match = .false.
                 
-                ${node.exp.expr
-                    .filter((node) => node instanceof ContenidoRango)
-                    .map((range) => `
-                    if (.not. in_range) then
-                        if (input(i:i) >= "${range.inicio}" .and. input(i:i) <= "${range.fin}") then
-                            in_range = .true.
-                        end if
-                    end if`)
-                    .join('\n')}
-                
-
-                    ! Acumular carácter válido en lexeme
-                    lexeme = lexeme // input(i:i)
-                    match_count = match_count + 1
-                
-            end do
-            
-            ! Si encontramos un error, reportarlo
-            if (found_error) then
-                print *, "Error léxico: carácter '", invalid_char, "' no está en el rango permitido, columna: ", i
                 if (allocated(lexeme)) deallocate(lexeme)
-                allocate(character(len=5) :: lexeme)
-                lexeme = "ERROR"
-                cursor = i
-                return
-            end if
-
-
-            ! Manejar cuantificadores
-            ${this.generateQuantifierCode(node.count, 'match_count')}
-        end block`;
-        
-        return baseCode;
-    }else if(node.exp instanceof Agrup){
-        return node.exp.accept(this);
-    
-    }else if(node.exp instanceof Identificador){
-        return node.exp.accept(this);
-    }else if(node.count){
-
-        if (node.count == '*'){
-            return ` 
-
-            !expresión normal*          
-                if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
-                    do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}")
-                        lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
-                        cursor = cursor + ${node.exp.expr.length}
+                allocate(character(len=0) :: lexeme)
+                allocate(character(len=0) :: temp_lexeme)
+                
+                start_pos = cursor
+                
+                do i = 1, max_iterations
+                    if (cursor > len_trim(input)) exit
+                    
+                    current_char = input(cursor:cursor)
+                    any_range_match = .false.
+                    
+                    ! Verificar caracteres y rangos
+                    ${node.exp.expr
+                        .filter((node) => typeof node === 'string')
+                        .map(char => `
+                        if (.not. any_range_match) then
+                            if (current_char == "${char}") then
+                                any_range_match = .true.
+                            end if
+                        end if`)
+                        .join('\n')}
+                    
+                    ${node.exp.expr
+                        .filter((node) => node instanceof ContenidoRango)
+                        .map((range) => `
+                        if (.not. any_range_match) then
+                            if (current_char >= "${range.inicio}" .and. current_char <= "${range.fin}") then
+                                any_range_match = .true.
+                            end if
+                        end if`)
+                        .join('\n')}
+                    
+                    if (any_range_match) then
+                        temp_lexeme = temp_lexeme // current_char
+                        match_count = match_count + 1
+                        cursor = cursor + 1
+                        found_match = .true.
+                    else
+                        exit
+                    end if
+                end do
+                
+                ! Manejar los cuantificadores
+                select case ("${node.count}")
+                    case ("*")
+                        lexeme = temp_lexeme
+                        return
+                    case ("+")
+                        if (match_count > 0) then
+                            lexeme = temp_lexeme
+                            return
+                        end if
+                    case ("?")
+                        if (match_count <= 1) then
+                            lexeme = temp_lexeme
+                            return
+                        end if
+                    case default
+                        if (match_count == 1) then
+                            lexeme = temp_lexeme
+                            return
+                        end if
+                end select
+                
+                ! Si llegamos aquí, no se cumplieron las condiciones
+                cursor = start_pos
+                if (allocated(temp_lexeme)) deallocate(temp_lexeme)
+            end block`;
+            
+            return baseCode;
+        } else if (node.exp instanceof Agrup) {
+            return node.exp.accept(this);
+        } else if (node.exp instanceof Identificador) {
+            return node.exp.accept(this);
+        } else if (node.count) {
+            if (node.count == '*') {
+                return `
+                block
+                    integer :: start_pos, matches, max_iterations
+                    start_pos = cursor
+                    matches = 0
+                    max_iterations = len_trim(input) - cursor + 1
+                    
+                    if (allocated(lexeme)) deallocate(lexeme)
+                    allocate(character(len=0) :: lexeme)
+                    
+                    do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. matches < max_iterations)
+                        if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
+                            lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
+                            cursor = cursor + ${node.exp.expr.length}
+                            matches = matches + 1
+                        else
+                            exit
+                        end if
                     end do
-                return
-                end if
-                `;
-        }else if (node.count == '+'){
-            return `
-            !expresión normal+          
-                if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
-                    allocate(character(len=${node.exp.expr.length}) :: lexeme)
-                    lexeme = input(cursor:cursor + ${node.exp.expr.length - 1})
-                    cursor = cursor + ${node.exp.expr.length}
                     return
-                end if
-            `;
-        }else if (node.count == '?'){
-            return `
-            !expresión normal?          
-                if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
-                    allocate(character(len=${node.exp.expr.length}) :: lexeme)
-                    lexeme = input(cursor:cursor + ${node.exp.expr.length - 1})
-                    cursor = cursor + ${node.exp.expr.length}
+                end block`;
+            } else if (node.count == '+') {
+                return `
+                block
+                    integer :: start_pos, matches, max_iterations
+                    start_pos = cursor
+                    matches = 0
+                    max_iterations = len_trim(input) - cursor + 1
+                    
+                    if (allocated(lexeme)) deallocate(lexeme)
+                    allocate(character(len=0) :: lexeme)
+                    
+                    do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1} .and. matches < max_iterations)
+                        if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
+                            lexeme = lexeme // input(cursor:cursor + ${node.exp.expr.length - 1})
+                            cursor = cursor + ${node.exp.expr.length}
+                            matches = matches + 1
+                        else
+                            exit
+                        end if
+                    end do
+                    
+                    if (matches == 0) then
+                        cursor = start_pos
+                    end if
+                end block`;
+            } else if (node.count == '?') {
+                return `
+                block
+                    integer :: start_pos
+                    start_pos = cursor
+                    
+                    if (cursor <= len_trim(input) - ${node.exp.expr.length - 1}) then
+                        if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
+                            allocate(character(len=${node.exp.expr.length}) :: lexeme)
+                            lexeme = input(cursor:cursor + ${node.exp.expr.length - 1})
+                            cursor = cursor + ${node.exp.expr.length}
+                        end if
+                    end if
                     return
-                end if
-            `;
+                end block`;
+            }
         }
         
-    }
-    
-    // Para otros casos, delegar al nodo hijo
-    return node.exp.accept(this);
-
+        return node.exp.accept(this);
     }
 
-
-
-    /**
-     * @type {BaseVisitor['visitStrComilla']}
-     */
     visitStrComilla(node) {
         if (node.opI === 'i') {
             return `
@@ -186,105 +214,32 @@ export class GeneratorFortran extends BaseVisitor {
             return
         end if`;
         }
-        }
-    /**
-     * @type {BaseVisitor['visitConteo']}
-     */
+    }
+
     visitConteo(node) {
         throw new Error("Method not implemented.");
     }
 
-     /**
-     * @type {BaseVisitor['visitContenidoRango']}
-     */
-     visitContenidoRango(node) {
+    visitContenidoRango(node) {
         return `
-    if (input(i:i) >= "${node.inicio}" .and. input(i:i) <= "${node.fin}") then
-        lexeme = input(cursor:i)
-        cursor = i + 1
-        return
-    end if
-        `;
-
-    
-}
-
-generateQuantifierCode(quantifier, countVar) {
-    switch (quantifier) {
-        case '*':
-            return `
-            ! Cuantificador * (cero o más)
-            cursor = i
-            return`;
+        block
+            integer :: start_pos
+            start_pos = cursor
             
-        case '+':
-            return `
-            ! Cuantificador + (uno o más)
-            if (${countVar} > 0) then
-                cursor = i
-                return
-            else
-                print *, "Error léxico: se requiere al menos una coincidencia para el cuantificador '+', columna: ", cursor
-                if (allocated(lexeme)) deallocate(lexeme)
-                allocate(character(len=5) :: lexeme)
-                lexeme = "ERROR"
-                return
-            end if`;
+            if (cursor <= len_trim(input)) then
+                if (input(cursor:cursor) >= "${node.inicio}" .and. input(cursor:cursor) <= "${node.fin}") then
+                    allocate(character(len=1) :: lexeme)
+                    lexeme = input(cursor:cursor)
+                    cursor = cursor + 1
+                    return
+                end if
+            end if
             
-        case '?':
-            return `
-            ! Cuantificador ? (cero o uno)
-            if (${countVar} <= 1) then
-                cursor = i
-                return
-            else
-                print *, "Error léxico: se encontraron múltiples coincidencias para el cuantificador '?', columna: ", cursor
-                if (allocated(lexeme)) deallocate(lexeme)
-                allocate(character(len=5) :: lexeme)
-                lexeme = "ERROR"
-                return
-            end if`;
-            
-        default:
-            return `
-            ! Sin cuantificador (exactamente uno)
-            if (${countVar} == 1) then
-                cursor = i
-                return
-            else
-                print *, "Error léxico: se requiere exactamente una coincidencia, columna: ", cursor
-                if (allocated(lexeme)) deallocate(lexeme)
-                allocate(character(len=5) :: lexeme)
-                lexeme = "ERROR"
-                return
-            end if`;
-    }
-}
-
-
-
-
-    generateCaracteres(chars) {
-
-        if (chars.length === 0) return '';
-    return `
-    if (findloc([${chars
-        .map((char) => `"${char}"`)
-        .join(', ')}], input(i:i), 1) > 0) then
-        lexeme = input(cursor:i)
-        cursor = i + 1
-        return
-    end if
-    `;
+            cursor = start_pos
+        end block`;
     }
 
-
-    
-    /**
-     * @type {BaseVisitor['visitClase']}
-     */
     visitClase(node) {
-
         if (node.opI === 'i') {
             const caracteres = node.expr
                 .filter((node) => typeof node === 'string')
@@ -331,96 +286,90 @@ generateQuantifierCode(quantifier, countVar) {
                     end if
                 end block`;
             } else {
-                return `
-                i = cursor
-                ${this.generateCaracteres(
-                    node.expr.filter((node) => typeof node === 'string')
-                )}
-                ${node.expr
-                    .filter((node) => node instanceof ContenidoRango)
-                    .map((range) => range.accept(this))
-                    .join('\n')}
-                `;
-
+            return `
+            block
+                integer :: start_pos
+                start_pos = cursor
+                
+                if (cursor <= len_trim(input)) then
+                    ${this.generateCaracteres(node.expr.filter((node) => typeof node === 'string'))}
+                    ${node.expr
+                        .filter((node) => node instanceof ContenidoRango)
+                        .map((range) => range.accept(this))
+                        .join('\n')}
+                end if
+                
+                cursor = start_pos
+            end block`;
         }
     }
 
-
-
-
-
-    //Generar el tokennizador
+    generateCaracteres(chars) {
+        if (chars.length === 0) return '';
+        return `
+        if (findloc([${chars.map((char) => `"${char}"`).join(', ')}], input(cursor:cursor), 1) > 0) then
+            allocate(character(len=1) :: lexeme)
+            lexeme = input(cursor:cursor)
+            cursor = cursor + 1
+            return
+        end if`;
+    }
 
     generateTokenizer(producciones) {
         return `
-            module tokenizer
-            implicit none
-            
-            contains
-            function nextSym(input, cursor) result(lexeme)
-                character(len=*), intent(in) :: input
-                integer, intent(inout) :: cursor
-                character(len=:), allocatable :: lexeme
-                integer :: i
-            
-                if (cursor > len(input)) then
-                    allocate( character(len=3) :: lexeme )
-                    lexeme = "EOF"
-                    return
-                end if
-            
-                ${producciones.map((produccion) => produccion.accept(this)).join('\n')}
-            
-                print *, "error lexico en col ", cursor, ', "'//input(cursor:cursor)//'"'
-                lexeme = "ERROR"
-            end function nextSym
-            end module tokenizer 
-                `;
-    }
-
-
-    /**
-     * @type {BaseVisitor['visitIdentificador']}
-     */
-    visitIdentificador(node) {
+        module tokenizer
+        implicit none
         
+        contains
+        function nextSym(input, cursor) result(lexeme)
+            character(len=*), intent(in) :: input
+            integer, intent(inout) :: cursor
+            character(len=:), allocatable :: lexeme
+            integer :: i, start_pos, original_cursor
+            
+            if (cursor > len(input)) then
+                allocate(character(len=3) :: lexeme)
+                lexeme = "EOF"
+                return
+            end if
+            
+            start_pos = cursor
+            original_cursor = cursor
+            
+            ! Intentar cada producción
+            ${producciones.map((produccion, index) => `
+            cursor = start_pos
+            ! Producción ${index + 1}
+            ${produccion.accept(this)}
+            if (allocated(lexeme)) then
+                if (len_trim(lexeme) > 0) then
+                    return
+                else
+                    deallocate(lexeme)
+                end if
+            end if`).join('\n')}
+            
+            ! Si ninguna producción coincide
+            cursor = start_pos + 1
+            allocate(character(len=5) :: lexeme)
+            lexeme = "ERROR"
+        end function nextSym
+        end module tokenizer`;
     }
 
-
-    /**
-     * @type {BaseVisitor['visitAgrup']}
-     */
+    visitIdentificador(node) {
+        // Implementar si es necesario
+    }
 
     visitAgrup(node) {
-
         return node.expr.accept(this);
     }
 
-
-    /**
-     * @type {BaseVisitor['visitPunto']}
-     */
-    visitPunto(node){
-
+    visitPunto(node) {
+        // Implementar si es necesario
     }
 
-    /**
-     * @type {BaseVisitor['visitFinCadena']}
-     */
-
-    visitFinCadena(node){
-
+    visitFinCadena(node) {
+        // Implementar si es necesario
     }
-
-
-
-    
-    
-
-
-
-
-
-
-
 }

@@ -282,7 +282,7 @@ function peg$parse(input, options) {
   var peg$f5 = function(tag, id, vars) { return { id, vars, tag} };
   var peg$f6 = function(vario) { return vario };
   var peg$f7 = function(expr) { usos.push(expr); return crearNodo('identificador', {expr}) };
-  var peg$f8 = function(expr, opI) { return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) };
+  var peg$f8 = function(expr, opI) {  return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) };
   var peg$f9 = function(expr) {  return crearNodo('agrup', {expr}) };
   var peg$f10 = function(expr, opI) { return crearNodo('clase', {expr,opI}) };
   var peg$f11 = function(expr) { return crearNodo('punto', {expr}) };
