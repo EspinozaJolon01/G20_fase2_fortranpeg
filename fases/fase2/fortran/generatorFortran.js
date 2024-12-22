@@ -1,5 +1,5 @@
 import { BaseVisitor } from "../tools/visitor.js";
-import {ContenidoRango} from "../tools/nodos.js";
+import {ContenidoRango, Identificador} from "../tools/nodos.js";
 import {StrComilla} from "../tools/nodos.js";
 import {Clase} from "../tools/nodos.js";
 import {Agrup} from "../tools/nodos.js";
@@ -96,6 +96,8 @@ export class GeneratorFortran extends BaseVisitor {
     }else if(node.exp instanceof Agrup){
         return node.exp.accept(this);
     
+    }else if(node.exp instanceof Identificador){
+        return node.exp.accept(this);
     }else if(node.count){
 
         if (node.count == '*'){
