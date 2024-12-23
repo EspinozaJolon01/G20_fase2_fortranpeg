@@ -436,10 +436,23 @@ export class GeneratorFortran extends BaseVisitor {
 
     generateTokenizer(producciones) {
         return `
-        module tokenizer
+        module parser
         implicit none
         
         contains
+
+        subroutine parse(input)
+            character(len=:), intent(inout), allocatable :: input
+            integer :: i = 1
+            character(len=:), allocatable :: valor
+
+            do while (valor/= "EOF" .AND. valor/= "ERROR")
+                valor = nextsym(input, i)
+                print *, valor
+            end do
+        end subroutine parse
+
+
         function nextSym(input, cursor) result(lexeme)
             character(len=*), intent(in) :: input
             integer, intent(inout) :: cursor
@@ -473,7 +486,7 @@ export class GeneratorFortran extends BaseVisitor {
             allocate(character(len=5) :: lexeme)
             lexeme = "ERROR"
         end function nextSym
-        end module tokenizer`;
+        end module parser`;
     }
 
     visitIdentificador(node) {
