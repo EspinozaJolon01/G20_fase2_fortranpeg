@@ -426,6 +426,7 @@ export class GeneratorFortran extends BaseVisitor {
         return `
         ! Caracteres ${chars.join(', ')}
         if (findloc([${chars.map((char) => `"${char}"`).join(', ')}], input(cursor:cursor), 1) > 0) then
+            if (allocated(lexeme)) deallocate(lexeme)
             allocate(character(len=1) :: lexeme)
             lexeme = input(cursor:cursor)
             cursor = cursor + 1
