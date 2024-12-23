@@ -209,7 +209,7 @@ function peg$parse(input, options) {
   var peg$c22 = "*/";
 
   var peg$r0 = /^[?+*]/;
-  var peg$r1 = /^[!$&@]/;
+  var peg$r1 = /^[$&@]/;
   var peg$r2 = /^[^[\]]/;
   var peg$r3 = /^[\n\r"\\\u2028-\u2029]/;
   var peg$r4 = /^[\n\r'\\\u2028-\u2029]/;
@@ -228,7 +228,7 @@ function peg$parse(input, options) {
   var peg$e3 = peg$classExpectation(["?", "+", "*"], false, false);
   var peg$e4 = peg$literalExpectation("@", false);
   var peg$e5 = peg$literalExpectation(":", false);
-  var peg$e6 = peg$classExpectation(["!", "$", "&", "@"], false, false);
+  var peg$e6 = peg$classExpectation(["$", "&", "@"], false, false);
   var peg$e7 = peg$literalExpectation("i", false);
   var peg$e8 = peg$literalExpectation("(", false);
   var peg$e9 = peg$literalExpectation(")", false);
@@ -286,7 +286,7 @@ function peg$parse(input, options) {
   var peg$f9 = function(expr) {  return crearNodo('agrup', {expr}) };
   var peg$f10 = function(expr, opI) { return crearNodo('clase', {expr,opI}) };
   var peg$f11 = function(expr) { return crearNodo('punto', {expr}) };
-  var peg$f12 = function(expr) {return crearNodo('finCadena', {expr}) };
+  var peg$f12 = function(expr) { return crearNodo('finCadena', {expr}) };
   var peg$f13 = function(val) {return crearNodo('conteo', {val})};
   var peg$f14 = function(val) {return crearNodo('conteo', {val})};
   var peg$f15 = function(val) {return crearNodo('conteo', {val})};

@@ -1,8 +1,9 @@
 import { BaseVisitor } from "../tools/visitor.js";
-import { ContenidoRango, Identificador } from "../tools/nodos.js";
+import { ContenidoRango, FinCadena, Identificador } from "../tools/nodos.js";
 import { StrComilla } from "../tools/nodos.js";
 import { Clase } from "../tools/nodos.js";
 import { Agrup } from "../tools/nodos.js";
+
 
 export class GeneratorFortran extends BaseVisitor {
     visitProducciones(node) {
@@ -120,6 +121,16 @@ export class GeneratorFortran extends BaseVisitor {
             return node.exp.accept(this);
         } else if (node.exp instanceof Identificador) {
             return node.exp.accept(this);
+        }else if(node.exp instanceof FinCadena){
+            return `
+            !string 
+            if (((input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}"))) then
+                if (allocated(lexeme)) deallocate(lexeme)
+                allocate(character(len=${node.exp.expr.length}) :: lexeme)
+                lexeme = input(cursor:cursor + ${node.exp.expr.length - 1}) // " - " // "EOF"
+                cursor = cursor + ${node.exp.expr.length}
+                return
+    end if`;
         } else if (node.count) {
             if (node.exp instanceof StrComilla && node.count) {
                 const baseCode = `
@@ -422,7 +433,7 @@ export class GeneratorFortran extends BaseVisitor {
     generateCaracteres(chars) {
         if (chars.length === 0) return '';
         chars = this.CaracteresEspeciales(chars)
-        console.log(chars)
+        
         return `
         ! Caracteres ${chars.join(', ')}
         if (findloc([${chars.map((char) => `"${char}"`).join(', ')}], input(cursor:cursor), 1) > 0) then
@@ -503,6 +514,15 @@ export class GeneratorFortran extends BaseVisitor {
     }
 
     visitFinCadena(node) {
-        // Implementar si es necesario
+        console.log("Fin de cadena")
+        return `
+            !string 
+        if  (((input(cursor:cursor + ${node.expr.length - 1}) == "${node.expr}"))) then
+            if (allocated(lexeme)) deallocate(lexeme)
+            allocate(character(len=${node.expr.length}) :: lexeme)
+            lexeme = input(cursor:cursor + ${node.expr.length - 1}) // " - " // "EOF"
+            cursor = cursor + ${node.expr.length}
+            return
+        end if`;
     }
 }

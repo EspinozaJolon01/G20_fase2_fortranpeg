@@ -56,14 +56,14 @@ expresion  = tag:$(etiqueta/varios)? _ exp:expresiones _ count:$([?+*]/conteo)? 
 
 etiqueta = tag:("@")? _ id:identificador _ ":" vars:(varios)?  { return { id, vars, tag} }
 
-varios = vario:("!"/"$"/"@"/"&")   { return vario }   
+varios = vario:("$"/"@"/"&")   { return vario }   
 
 expresiones  =  expr:identificador { usos.push(expr); return crearNodo('identificador', {expr}) }
                 / expr:$literales opI:"i"?    {  return crearNodo('strComilla', {expr: expr.replace(/['"]/g, ''),opI}) }
                 / "(" _ expr:opciones _ ")"   {  return crearNodo('agrup', {expr}) }	
                 / expr:clase opI:"i"?  { return crearNodo('clase', {expr,opI}) }
                 / expr:"." { return crearNodo('punto', {expr}) }
-                / expr:"!."  {return crearNodo('finCadena', {expr}) }
+                / expr:"!."  { return crearNodo('finCadena', {expr}) }
 
 // conteo = "|" parteconteo _ (_ delimitador )? _ "|"
 
