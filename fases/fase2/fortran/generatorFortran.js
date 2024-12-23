@@ -78,17 +78,17 @@ export class GeneratorFortran extends BaseVisitor {
                 ! Manejar los cuantificadores
                 select case ("${node.count}")
                     case ("*")
-                        lexeme = temp_lexeme
+                        lexeme = temp_lexeme // " - " // "identificador *"
                         return
                     case ("+")
                         if (match_count > 0) then
-                            lexeme = temp_lexeme
+                            lexeme = temp_lexeme // " - " // "identificador +"
                             return
                         end if
                     case ("?")
                         if (match_count <= 1) then
                         
-                            lexeme = temp_lexeme
+                            lexeme = temp_lexeme // " - " // "identificador ?"
                             return
                         else
                             ! if (allocated(lexeme)) deallocate(lexeme)
@@ -100,7 +100,7 @@ export class GeneratorFortran extends BaseVisitor {
                     end if
                     case default
                         if (match_count == 1) then
-                            lexeme = temp_lexeme
+                            lexeme = temp_lexeme // " - " // "identificador"
                             return
                         end if
                 end select
@@ -223,7 +223,7 @@ export class GeneratorFortran extends BaseVisitor {
             !string 
         if  (((input(cursor:cursor + ${node.expr.length - 1}) == "${node.expr}"))) then
             allocate(character(len=${node.expr.length}) :: lexeme)
-            lexeme = input(cursor:cursor + ${node.expr.length - 1})
+            lexeme = input(cursor:cursor + ${node.expr.length - 1}) // " - " // "string"
             cursor = cursor + ${node.expr.length}
             return
         end if`;
