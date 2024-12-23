@@ -120,7 +120,85 @@ export class GeneratorFortran extends BaseVisitor {
             return node.exp.accept(this);
         } else if (node.exp instanceof Identificador) {
             return node.exp.accept(this);
-        // } else if (node.count) {
+        } else if (node.count) {
+            if (node.exp instanceof StrComilla && node.count) {
+                const baseCode = `
+                block
+                    integer :: match_count, start_pos, max_iterations
+                    logical :: found_match
+                    character(len=:), allocatable :: temp_lexeme
+                    character(len=:), allocatable :: full_match
+                    
+                    match_count = 0
+                    max_iterations = len_trim(input) - cursor + 1
+                    found_match = .false.
+                    
+                    if (allocated(lexeme)) deallocate(lexeme)
+                    allocate(character(len=0) :: lexeme)
+                    allocate(character(len=0) :: temp_lexeme)
+                    allocate(character(len=0) :: full_match)
+                    
+                    start_pos = cursor
+                    
+                    ! Verificar primera coincidencia usando visitStrComilla
+                    ${node.exp.accept(this)}
+                    
+
+                   do while (cursor <= len_trim(input) - ${node.exp.expr.length - 1})
+            if (input(cursor:cursor + ${node.exp.expr.length - 1}) == "${node.exp.expr}") then
+                full_match = full_match // "${node.exp.expr}"
+                cursor = cursor + ${node.exp.expr.length}
+                match_count = match_count + 1
+                found_match = .true.
+            else
+                exit
+            end if
+        end do
+        
+                    ! Manejar los cuantificadores
+                    if (found_match) then
+                    select case ("${node.count}")
+                        case ("*")
+                    ! Para * aceptamos todas las coincidencias encontradas
+                    lexeme = full_match // " - string"
+                    return
+                    
+                case ("+")
+                    ! Para + necesitamos al menos una coincidencia
+                    if (match_count > 0) then
+                        lexeme = full_match // " - identificador +"
+                        return
+                    end if
+            
+                            
+                        case ("?")
+                            ! Para ? aceptamos tanto si hay coincidencia como si no
+                            if (match_count<=1) then
+                                lexeme = temp_lexeme
+                                return
+                            else
+                                cursor = start_pos
+                                return
+                            end if
+                            
+                            
+                        case default
+                            ! Para ningún cuantificador, necesitamos exactamente una coincidencia
+                            if (found_match) then
+                                lexeme = temp_lexeme
+                                return
+                            end if
+                    end select
+                    end if
+                    
+                    ! Si llegamos aquí es que no se cumplió la condición del cuantificador
+                    cursor = start_pos
+                    if (allocated(temp_lexeme)) deallocate(temp_lexeme)
+                end block`;
+                
+                return baseCode;
+                }
+
         //     if (node.count == '*') {
         //         return `
         //         block
@@ -223,6 +301,7 @@ export class GeneratorFortran extends BaseVisitor {
             return `
             !string 
         if  (((input(cursor:cursor + ${node.expr.length - 1}) == "${node.expr}"))) then
+            if (allocated(lexeme)) deallocate(lexeme)
             allocate(character(len=${node.expr.length}) :: lexeme)
             lexeme = input(cursor:cursor + ${node.expr.length - 1}) // " - " // "string"
             cursor = cursor + ${node.expr.length}
