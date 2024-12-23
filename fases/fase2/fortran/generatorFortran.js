@@ -410,10 +410,7 @@ export class GeneratorFortran extends BaseVisitor {
         }
     }
 
-    //Verifica en un arreglo que si viene /t/n/r
-    /*
-    ["/", "/n"]
-    */
+
     CaracteresEspeciales(chars){
         let resultado =[]
         for (let i = 0; i < chars.length; i++) {
