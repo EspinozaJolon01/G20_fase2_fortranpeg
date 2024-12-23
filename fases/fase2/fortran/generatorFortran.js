@@ -19,6 +19,7 @@ export class GeneratorFortran extends BaseVisitor {
 
     visitExpresion(node) {
         if (node.exp instanceof Clase && node.count) {
+            node.exp.expr = this.CaracteresEspeciales(node.exp.expr)
             const baseCode = `
             block
             integer :: match_count, start_pos, max_iterations
@@ -319,8 +320,30 @@ export class GeneratorFortran extends BaseVisitor {
         }
     }
 
+    //Verifica en un arreglo que si viene /t/n/r
+    /*
+    ["/", "/n"]
+    */
+    CaracteresEspeciales(chars){
+        let resultado =[]
+        for (let i = 0; i < chars.length; i++) {
+            if (chars[i]=="\\" && i + 1 < chars.length){
+                if (chars[i + 1] === 't' || chars[i + 1] === 'r' || chars[i + 1] === 'n'){
+                    resultado.push("\\"+chars[i + 1]);
+                    i++
+                }
+            }
+            else{
+                resultado.push(chars[i])
+            }
+        }          
+        return  resultado ;
+    }
+
     generateCaracteres(chars) {
         if (chars.length === 0) return '';
+        chars = this.CaracteresEspeciales(chars)
+        console.log(chars)
         return `
         ! Caracteres ${chars.join(', ')}
         if (findloc([${chars.map((char) => `"${char}"`).join(', ')}], input(cursor:cursor), 1) > 0) then
@@ -330,6 +353,7 @@ export class GeneratorFortran extends BaseVisitor {
             return
         end if`;
     }
+
 
     generateTokenizer(producciones) {
         return `
